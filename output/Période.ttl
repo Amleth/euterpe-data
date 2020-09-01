@@ -1,0 +1,186 @@
+@prefix ns1: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ns2: <http://purl.org/dc/elements/1.1/> .
+
+<http://data-iremus.huma-num.fr/id/02f16d3d-8f4c-29e7-d92b-0703f7467ac9> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "1ère moitié 15e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/055665f0-fbb3-e84e-0ef1-52125425b7b2> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "13e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/06a3f5be-62a9-701b-4279-530735b8cfae> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "9e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/07158ab7-95f3-8183-5b69-13cd87684f34> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "15e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/0a3aee49-6666-0879-138d-da71e3658966> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "ère chrétienne"@fr .
+
+<http://data-iremus.huma-num.fr/id/10adf348-2c4b-7d89-9344-7cbaed90dafc> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "1er quart 19e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/21b8c26b-c023-73ab-55da-cb8f8c773fe6> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "14e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/2507759b-36af-971e-ed2e-f1c113d1e9e3> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "20e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/277582f0-93f5-0c2c-488e-44f94ecc6c7f> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "4e quart 14e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/323d3ab0-f35c-b8a9-fce5-e9d717208331> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "2e moitié 19e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/374f469f-e3e0-1eda-da6b-b5639dfcfbd4> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "2e moitié 17e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/377e6ff8-8e83-5961-2e84-3b2c7e96ba87> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "1ère moitié 18e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/3bb427c1-a1da-059d-2ad1-245c92010b38> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "17e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/41f60be0-7cef-6aa3-6aed-cf4a4599a084> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "4e quart 19e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/5d357ffe-4423-f60d-db0e-da407f5e8e61> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "1ère moitié 16e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/705e3831-2331-c265-fabf-7430e9e4817a> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "2e moitié 18e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/8623121d-e0bb-f37a-9459-4d8b75673fca> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "11e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/8d62d777-8090-c4bd-d6a7-4dbe3e572e0f> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "1er quart 16e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/8dbb5b2a-6e20-af8e-1001-a6625a1298a1> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "1er millénaire"@fr .
+
+<http://data-iremus.huma-num.fr/id/8e91579a-21c3-a39e-50c1-91728c541241> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "2e millénaire"@fr .
+
+<http://data-iremus.huma-num.fr/id/993955be-5888-6f39-137c-56af8c5187c1> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "18e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/9af49740-96f5-b0ee-5e25-02420ae59635> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "1er quart 15e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/9c6ab710-4a08-c720-cede-24428a013fda> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "16e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/9cecdeee-a156-0927-1ff6-3c0179e58218> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "1er quart 17e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/a689ee27-eec1-83b6-15a8-f48f39643825> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "2e moitié 14e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/b39cfd4b-8abe-ad78-8520-10116895cea8> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "4e quart 18e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/bd023447-34aa-53ff-3278-e0a594ac807a> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "1ère moitié 19e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/bdd640fb-0667-1ad1-1c80-317fa3b1799d> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "4e quart 16e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/c12776e4-6dd4-51b2-6bce-fab3a3b48c4a> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "10e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/c33f4584-b23b-c1d8-493c-d01609de8895> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "4e quart 17e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/c393fd0e-1cc6-2be5-7836-46bf0324aac3> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "19e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/e149bd09-0df5-3245-44b0-6badfa7576c5> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "2e moitié 16e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/ee34cf80-4b49-61f1-71b9-016371f4a4e4> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "1ère moitié 17e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/eeee3183-69ca-47e7-5826-00e9111f4efd> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "2e moitié 15e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/ef70b4c0-1773-44a3-9b95-f239ae97d9db> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "12e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/fe1b1434-3b10-6980-550c-aef9618a9261> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "4e quart 15e siècle"@fr .
+
+<http://data-iremus.huma-num.fr/id/123test> a ns1:ConceptScheme ;
+    ns2:title "Période"@fr ;
+    ns1:hasTopConcept <http://data-iremus.huma-num.fr/id/02f16d3d-8f4c-29e7-d92b-0703f7467ac9>,
+        <http://data-iremus.huma-num.fr/id/055665f0-fbb3-e84e-0ef1-52125425b7b2>,
+        <http://data-iremus.huma-num.fr/id/06a3f5be-62a9-701b-4279-530735b8cfae>,
+        <http://data-iremus.huma-num.fr/id/07158ab7-95f3-8183-5b69-13cd87684f34>,
+        <http://data-iremus.huma-num.fr/id/0a3aee49-6666-0879-138d-da71e3658966>,
+        <http://data-iremus.huma-num.fr/id/10adf348-2c4b-7d89-9344-7cbaed90dafc>,
+        <http://data-iremus.huma-num.fr/id/21b8c26b-c023-73ab-55da-cb8f8c773fe6>,
+        <http://data-iremus.huma-num.fr/id/2507759b-36af-971e-ed2e-f1c113d1e9e3>,
+        <http://data-iremus.huma-num.fr/id/277582f0-93f5-0c2c-488e-44f94ecc6c7f>,
+        <http://data-iremus.huma-num.fr/id/323d3ab0-f35c-b8a9-fce5-e9d717208331>,
+        <http://data-iremus.huma-num.fr/id/374f469f-e3e0-1eda-da6b-b5639dfcfbd4>,
+        <http://data-iremus.huma-num.fr/id/377e6ff8-8e83-5961-2e84-3b2c7e96ba87>,
+        <http://data-iremus.huma-num.fr/id/3bb427c1-a1da-059d-2ad1-245c92010b38>,
+        <http://data-iremus.huma-num.fr/id/41f60be0-7cef-6aa3-6aed-cf4a4599a084>,
+        <http://data-iremus.huma-num.fr/id/5d357ffe-4423-f60d-db0e-da407f5e8e61>,
+        <http://data-iremus.huma-num.fr/id/705e3831-2331-c265-fabf-7430e9e4817a>,
+        <http://data-iremus.huma-num.fr/id/8623121d-e0bb-f37a-9459-4d8b75673fca>,
+        <http://data-iremus.huma-num.fr/id/8d62d777-8090-c4bd-d6a7-4dbe3e572e0f>,
+        <http://data-iremus.huma-num.fr/id/8dbb5b2a-6e20-af8e-1001-a6625a1298a1>,
+        <http://data-iremus.huma-num.fr/id/8e91579a-21c3-a39e-50c1-91728c541241>,
+        <http://data-iremus.huma-num.fr/id/993955be-5888-6f39-137c-56af8c5187c1>,
+        <http://data-iremus.huma-num.fr/id/9af49740-96f5-b0ee-5e25-02420ae59635>,
+        <http://data-iremus.huma-num.fr/id/9c6ab710-4a08-c720-cede-24428a013fda>,
+        <http://data-iremus.huma-num.fr/id/9cecdeee-a156-0927-1ff6-3c0179e58218>,
+        <http://data-iremus.huma-num.fr/id/a689ee27-eec1-83b6-15a8-f48f39643825>,
+        <http://data-iremus.huma-num.fr/id/b39cfd4b-8abe-ad78-8520-10116895cea8>,
+        <http://data-iremus.huma-num.fr/id/bd023447-34aa-53ff-3278-e0a594ac807a>,
+        <http://data-iremus.huma-num.fr/id/bdd640fb-0667-1ad1-1c80-317fa3b1799d>,
+        <http://data-iremus.huma-num.fr/id/c12776e4-6dd4-51b2-6bce-fab3a3b48c4a>,
+        <http://data-iremus.huma-num.fr/id/c33f4584-b23b-c1d8-493c-d01609de8895>,
+        <http://data-iremus.huma-num.fr/id/c393fd0e-1cc6-2be5-7836-46bf0324aac3>,
+        <http://data-iremus.huma-num.fr/id/e149bd09-0df5-3245-44b0-6badfa7576c5>,
+        <http://data-iremus.huma-num.fr/id/ee34cf80-4b49-61f1-71b9-016371f4a4e4>,
+        <http://data-iremus.huma-num.fr/id/eeee3183-69ca-47e7-5826-00e9111f4efd>,
+        <http://data-iremus.huma-num.fr/id/ef70b4c0-1773-44a3-9b95-f239ae97d9db>,
+        <http://data-iremus.huma-num.fr/id/fe1b1434-3b10-6980-550c-aef9618a9261> .
+

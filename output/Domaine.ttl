@@ -1,0 +1,121 @@
+@prefix ns1: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ns2: <http://purl.org/dc/elements/1.1/> .
+
+<http://data-iremus.huma-num.fr/id/0c4705de-6239-58a8-d7e7-7b64a4ff0d2e> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "maquette"@fr .
+
+<http://data-iremus.huma-num.fr/id/0d25eb19-94ef-10c9-7a0a-e137e083cc62> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Emaillerie"@fr .
+
+<http://data-iremus.huma-num.fr/id/56ce27ba-2354-a997-439e-1e7a0e836eb9> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Textile"@fr .
+
+<http://data-iremus.huma-num.fr/id/58f9091a-5e6a-f473-ec17-5b1bcda6e65b> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Spectacle - fête"@fr .
+
+<http://data-iremus.huma-num.fr/id/67072115-b01e-f91d-4c54-ae8f9f38c8c5> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Arts décoratifs"@fr .
+
+<http://data-iremus.huma-num.fr/id/674f14dd-87fe-baf4-dce1-b61d842550aa> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "support mixte"@fr .
+
+<http://data-iremus.huma-num.fr/id/67b538a1-b860-163b-bb37-1f3bac1ad1c6> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Objet au sens large"@fr .
+
+<http://data-iremus.huma-num.fr/id/67ea6fb9-b564-90d1-4a31-d91705d1bff8> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Art mobilier"@fr .
+
+<http://data-iremus.huma-num.fr/id/69473303-6a18-a498-9942-a2164f891d09> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Sculpture"@fr .
+
+<http://data-iremus.huma-num.fr/id/7f4a81fe-d3fe-a716-10a2-b7b6ecf2ad68> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Architecture"@fr .
+
+<http://data-iremus.huma-num.fr/id/816f8ec4-b7e1-39a6-27ca-986d54e48244> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Tapisserie"@fr .
+
+<http://data-iremus.huma-num.fr/id/82e0ab71-89eb-a3af-321e-6feb07fd4ae4> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Photographie"@fr .
+
+<http://data-iremus.huma-num.fr/id/938102b0-f939-4781-78a8-94fd7ab96edc> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Orfévrerie"@fr .
+
+<http://data-iremus.huma-num.fr/id/a939b99b-e1dd-92b1-1dd3-77b508b6ae66> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Vitrail"@fr .
+
+<http://data-iremus.huma-num.fr/id/b126ea16-87b6-4a6f-f207-e03c08d5f61a> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Dessin"@fr .
+
+<http://data-iremus.huma-num.fr/id/b340942e-3fde-1e62-5d7c-a8f03bd49b84> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Céramique"@fr .
+
+<http://data-iremus.huma-num.fr/id/b7d01b8c-1828-3b01-80b4-14d23d9b9309> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Facture instrumentale"@fr .
+
+<http://data-iremus.huma-num.fr/id/c6c4a3e6-fe13-d6e6-5dcb-4918c52215d4> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Enluminure"@fr .
+
+<http://data-iremus.huma-num.fr/id/c75a3b41-b90b-bfca-7cdf-ac4511a5259a> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Peinture"@fr .
+
+<http://data-iremus.huma-num.fr/id/c8311f98-5476-5495-21f7-5952ec026c56> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Mosaïque"@fr .
+
+<http://data-iremus.huma-num.fr/id/d6d15731-fb31-9627-b51f-090a1e01be7b> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Ebénisterie"@fr .
+
+<http://data-iremus.huma-num.fr/id/e895edf9-d496-f16d-a05f-0edf1fcfa0de> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Estampe"@fr .
+
+<http://data-iremus.huma-num.fr/id/ec480db8-0a3c-af3c-343f-67eb70b0ea0d> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Beaux-arts"@fr .
+
+<http://data-iremus.huma-num.fr/id/123test> a ns1:ConceptScheme ;
+    ns2:title "Domaine"@fr ;
+    ns1:hasTopConcept <http://data-iremus.huma-num.fr/id/0c4705de-6239-58a8-d7e7-7b64a4ff0d2e>,
+        <http://data-iremus.huma-num.fr/id/0d25eb19-94ef-10c9-7a0a-e137e083cc62>,
+        <http://data-iremus.huma-num.fr/id/56ce27ba-2354-a997-439e-1e7a0e836eb9>,
+        <http://data-iremus.huma-num.fr/id/58f9091a-5e6a-f473-ec17-5b1bcda6e65b>,
+        <http://data-iremus.huma-num.fr/id/67072115-b01e-f91d-4c54-ae8f9f38c8c5>,
+        <http://data-iremus.huma-num.fr/id/674f14dd-87fe-baf4-dce1-b61d842550aa>,
+        <http://data-iremus.huma-num.fr/id/67b538a1-b860-163b-bb37-1f3bac1ad1c6>,
+        <http://data-iremus.huma-num.fr/id/67ea6fb9-b564-90d1-4a31-d91705d1bff8>,
+        <http://data-iremus.huma-num.fr/id/69473303-6a18-a498-9942-a2164f891d09>,
+        <http://data-iremus.huma-num.fr/id/7f4a81fe-d3fe-a716-10a2-b7b6ecf2ad68>,
+        <http://data-iremus.huma-num.fr/id/816f8ec4-b7e1-39a6-27ca-986d54e48244>,
+        <http://data-iremus.huma-num.fr/id/82e0ab71-89eb-a3af-321e-6feb07fd4ae4>,
+        <http://data-iremus.huma-num.fr/id/938102b0-f939-4781-78a8-94fd7ab96edc>,
+        <http://data-iremus.huma-num.fr/id/a939b99b-e1dd-92b1-1dd3-77b508b6ae66>,
+        <http://data-iremus.huma-num.fr/id/b126ea16-87b6-4a6f-f207-e03c08d5f61a>,
+        <http://data-iremus.huma-num.fr/id/b340942e-3fde-1e62-5d7c-a8f03bd49b84>,
+        <http://data-iremus.huma-num.fr/id/b7d01b8c-1828-3b01-80b4-14d23d9b9309>,
+        <http://data-iremus.huma-num.fr/id/c6c4a3e6-fe13-d6e6-5dcb-4918c52215d4>,
+        <http://data-iremus.huma-num.fr/id/c75a3b41-b90b-bfca-7cdf-ac4511a5259a>,
+        <http://data-iremus.huma-num.fr/id/c8311f98-5476-5495-21f7-5952ec026c56>,
+        <http://data-iremus.huma-num.fr/id/d6d15731-fb31-9627-b51f-090a1e01be7b>,
+        <http://data-iremus.huma-num.fr/id/e895edf9-d496-f16d-a05f-0edf1fcfa0de>,
+        <http://data-iremus.huma-num.fr/id/ec480db8-0a3c-af3c-343f-67eb70b0ea0d> .
+

@@ -1,0 +1,176 @@
+@prefix ns1: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ns2: <http://purl.org/dc/elements/1.1/> .
+
+<http://data-iremus.huma-num.fr/id/1742bcd5-f666-5aef-b99a-d0512bfd1355> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "oeuvre musicale / extrait d'oeuvre musicale"@fr .
+
+<http://data-iremus.huma-num.fr/id/1d971bdb-8437-65c1-73ba-fe24064d5818> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "feuille de musique ~ feuille volante"@fr .
+
+<http://data-iremus.huma-num.fr/id/23685bd0-cd19-2129-8cfd-cb46417163c5> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "partie séparée"@fr .
+
+<http://data-iremus.huma-num.fr/id/255460b6-7c61-000b-5f63-4a2b766d7118> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "titre de l'oeuvre ou de l'extrait"@fr .
+
+<http://data-iremus.huma-num.fr/id/3463e0d7-3ce8-4dbe-bc3a-586f36b5c8b5> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "texte chanté illisible"@fr .
+
+<http://data-iremus.huma-num.fr/id/363fd65a-9d56-67f8-71d0-23304fffe445> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "notation lisible"@fr .
+
+<http://data-iremus.huma-num.fr/id/3aea2420-8498-2982-0db1-f331f51c1483> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "tablature avec partie instrumentale"@fr .
+
+<http://data-iremus.huma-num.fr/id/45a114cf-08ae-2f05-4d87-40985e9da2c4> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "notation illisible"@fr .
+
+<http://data-iremus.huma-num.fr/id/51dc63a4-d75c-1563-7946-6c6c08aad5f4> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "tablature avec partie vocale"@fr .
+
+<http://data-iremus.huma-num.fr/id/543a92af-8a87-56a0-f916-592fb61ee46f> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "partie vocale"@fr .
+
+<http://data-iremus.huma-num.fr/id/5986b2ca-1545-d5ea-326b-66e9e4a03cad> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "partie instrumentale"@fr .
+
+<http://data-iremus.huma-num.fr/id/63e48f73-de9c-9558-9412-26c6f41fd1b7> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "musique écrite avec partie de chant"@fr .
+
+<http://data-iremus.huma-num.fr/id/7787554c-efe2-f902-5cfb-7923c10f2efa> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "livre de musique imprimé"@fr .
+
+<http://data-iremus.huma-num.fr/id/7cee3107-d021-d1d7-4939-374dc27b492e> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "livre de musique manuscrit"@fr .
+
+<http://data-iremus.huma-num.fr/id/8698581f-6154-357a-de1b-c92133b866fb> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "notation figurée"@fr .
+
+<http://data-iremus.huma-num.fr/id/91812ad3-2d57-14e2-7129-be87c34b9e50> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "livre de choeur"@fr .
+
+<http://data-iremus.huma-num.fr/id/932a95e2-ee76-721c-8327-904fb8a57eaa> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "musique instrumentale"@fr .
+
+<http://data-iremus.huma-num.fr/id/98ebcdf2-6c29-7a6e-c96a-8c1516c48fc5> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "partition d'orchestre"@fr .
+
+<http://data-iremus.huma-num.fr/id/9cb2cf37-973a-1d79-6cc1-3c27570b57da> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "phylactère"@fr .
+
+<http://data-iremus.huma-num.fr/id/a56a8041-7f5c-5255-4c5f-c2b033bc2a84> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "musique vocale"@fr .
+
+<http://data-iremus.huma-num.fr/id/add99747-d938-b45d-aedd-beecf2700158> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "format à l'italienne ~ paysage ~ oblong"@fr .
+
+<http://data-iremus.huma-num.fr/id/afd65af1-5d31-b272-4c64-4296fc9178b0> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "oeuvre musicale, pédagogique ou théorique identifiée"@fr .
+
+<http://data-iremus.huma-num.fr/id/c16fee11-2719-d5a1-ae07-af603050b540> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "livre de musique"@fr .
+
+<http://data-iremus.huma-num.fr/id/c17ebd94-88a6-7dce-dfaa-cb8a81d2d815> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "rouleau"@fr .
+
+<http://data-iremus.huma-num.fr/id/c261ec9d-c2d1-f109-3639-0be06ab9cc84> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "caractéristiques matérielles"@fr .
+
+<http://data-iremus.huma-num.fr/id/c66a70da-f92a-0e4a-0a26-c09a37636409> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "nom de l'auteur"@fr .
+
+<http://data-iremus.huma-num.fr/id/d4767288-58b9-219a-e24a-86f101b1a106> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "oeuvre musicale non identifiée"@fr .
+
+<http://data-iremus.huma-num.fr/id/d5c20d53-df6f-09d8-4501-391e24bb9ee0> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "format à la française ~ portrait"@fr .
+
+<http://data-iremus.huma-num.fr/id/d6910bc7-2f7b-f2e0-c3f6-081db5387c21> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "notation musicale et textuelle"@fr .
+
+<http://data-iremus.huma-num.fr/id/e02413e5-a1bf-cda3-3cce-fbe6b8bde8f4> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "musique écrite avec partie de chant"@fr .
+
+<http://data-iremus.huma-num.fr/id/e96317ca-6203-ad09-34b5-4ca03ab62ce9> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "texte chanté lisible"@fr .
+
+<http://data-iremus.huma-num.fr/id/eab7ff66-3e07-a2e0-f708-7b1bc7ccfb8c> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "musique écrite"@fr .
+
+<http://data-iremus.huma-num.fr/id/fcb01146-2a89-65e6-dfdb-898fa91f1170> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "tablature"@fr .
+
+<http://data-iremus.huma-num.fr/id/ff62f9be-6010-f610-1324-0046d36452e3> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "plain-chant"@fr .
+
+<http://data-iremus.huma-num.fr/id/123test> a ns1:ConceptScheme ;
+    ns2:title "Notation musicale"@fr ;
+    ns1:hasTopConcept <http://data-iremus.huma-num.fr/id/1742bcd5-f666-5aef-b99a-d0512bfd1355>,
+        <http://data-iremus.huma-num.fr/id/1d971bdb-8437-65c1-73ba-fe24064d5818>,
+        <http://data-iremus.huma-num.fr/id/23685bd0-cd19-2129-8cfd-cb46417163c5>,
+        <http://data-iremus.huma-num.fr/id/255460b6-7c61-000b-5f63-4a2b766d7118>,
+        <http://data-iremus.huma-num.fr/id/3463e0d7-3ce8-4dbe-bc3a-586f36b5c8b5>,
+        <http://data-iremus.huma-num.fr/id/363fd65a-9d56-67f8-71d0-23304fffe445>,
+        <http://data-iremus.huma-num.fr/id/3aea2420-8498-2982-0db1-f331f51c1483>,
+        <http://data-iremus.huma-num.fr/id/45a114cf-08ae-2f05-4d87-40985e9da2c4>,
+        <http://data-iremus.huma-num.fr/id/51dc63a4-d75c-1563-7946-6c6c08aad5f4>,
+        <http://data-iremus.huma-num.fr/id/543a92af-8a87-56a0-f916-592fb61ee46f>,
+        <http://data-iremus.huma-num.fr/id/5986b2ca-1545-d5ea-326b-66e9e4a03cad>,
+        <http://data-iremus.huma-num.fr/id/63e48f73-de9c-9558-9412-26c6f41fd1b7>,
+        <http://data-iremus.huma-num.fr/id/7787554c-efe2-f902-5cfb-7923c10f2efa>,
+        <http://data-iremus.huma-num.fr/id/7cee3107-d021-d1d7-4939-374dc27b492e>,
+        <http://data-iremus.huma-num.fr/id/8698581f-6154-357a-de1b-c92133b866fb>,
+        <http://data-iremus.huma-num.fr/id/91812ad3-2d57-14e2-7129-be87c34b9e50>,
+        <http://data-iremus.huma-num.fr/id/932a95e2-ee76-721c-8327-904fb8a57eaa>,
+        <http://data-iremus.huma-num.fr/id/98ebcdf2-6c29-7a6e-c96a-8c1516c48fc5>,
+        <http://data-iremus.huma-num.fr/id/9cb2cf37-973a-1d79-6cc1-3c27570b57da>,
+        <http://data-iremus.huma-num.fr/id/a56a8041-7f5c-5255-4c5f-c2b033bc2a84>,
+        <http://data-iremus.huma-num.fr/id/add99747-d938-b45d-aedd-beecf2700158>,
+        <http://data-iremus.huma-num.fr/id/afd65af1-5d31-b272-4c64-4296fc9178b0>,
+        <http://data-iremus.huma-num.fr/id/c16fee11-2719-d5a1-ae07-af603050b540>,
+        <http://data-iremus.huma-num.fr/id/c17ebd94-88a6-7dce-dfaa-cb8a81d2d815>,
+        <http://data-iremus.huma-num.fr/id/c261ec9d-c2d1-f109-3639-0be06ab9cc84>,
+        <http://data-iremus.huma-num.fr/id/c66a70da-f92a-0e4a-0a26-c09a37636409>,
+        <http://data-iremus.huma-num.fr/id/d4767288-58b9-219a-e24a-86f101b1a106>,
+        <http://data-iremus.huma-num.fr/id/d5c20d53-df6f-09d8-4501-391e24bb9ee0>,
+        <http://data-iremus.huma-num.fr/id/d6910bc7-2f7b-f2e0-c3f6-081db5387c21>,
+        <http://data-iremus.huma-num.fr/id/e02413e5-a1bf-cda3-3cce-fbe6b8bde8f4>,
+        <http://data-iremus.huma-num.fr/id/e96317ca-6203-ad09-34b5-4ca03ab62ce9>,
+        <http://data-iremus.huma-num.fr/id/eab7ff66-3e07-a2e0-f708-7b1bc7ccfb8c>,
+        <http://data-iremus.huma-num.fr/id/fcb01146-2a89-65e6-dfdb-898fa91f1170>,
+        <http://data-iremus.huma-num.fr/id/ff62f9be-6010-f610-1324-0046d36452e3> .
+

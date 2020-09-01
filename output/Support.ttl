@@ -1,0 +1,31 @@
+@prefix ns1: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ns2: <http://purl.org/dc/elements/1.1/> .
+
+<http://data-iremus.huma-num.fr/id/0788968a-eebf-72d3-78b3-de46f4cc379c> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Numérique"@fr .
+
+<http://data-iremus.huma-num.fr/id/0af41260-3928-0e86-67f2-607050c07078> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "tirage papier"@fr .
+
+<http://data-iremus.huma-num.fr/id/17e0faad-1a7a-a47b-1be6-0de9e4aa89aa> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Diapositive"@fr .
+
+<http://data-iremus.huma-num.fr/id/a8f8250b-9af7-05f0-c44e-966a7adae781> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "APS"@fr .
+
+<http://data-iremus.huma-num.fr/id/c44386a2-16bf-c236-50bf-ddec4bcf5707> a ns1:Concept ;
+    ns1:inScheme <http://data-iremus.huma-num.fr/id/123test> ;
+    ns1:prefLabel "Ekta"@fr .
+
+<http://data-iremus.huma-num.fr/id/123test> a ns1:ConceptScheme ;
+    ns2:title "Support"@fr ;
+    ns1:hasTopConcept <http://data-iremus.huma-num.fr/id/0788968a-eebf-72d3-78b3-de46f4cc379c>,
+        <http://data-iremus.huma-num.fr/id/0af41260-3928-0e86-67f2-607050c07078>,
+        <http://data-iremus.huma-num.fr/id/17e0faad-1a7a-a47b-1be6-0de9e4aa89aa>,
+        <http://data-iremus.huma-num.fr/id/a8f8250b-9af7-05f0-c44e-966a7adae781>,
+        <http://data-iremus.huma-num.fr/id/c44386a2-16bf-c236-50bf-ddec4bcf5707> .
+
