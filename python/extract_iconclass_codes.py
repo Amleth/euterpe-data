@@ -10,7 +10,7 @@ import json
 import pandas as pd
 
 # changing working directory
-os.chdir("C:/Users/Cedric/Desktop/project")
+os.chdir("C:/Users/Cedric/Desktop/GIT")
 
 # loading a test json in data
 #with open('test.json') as json_file:
@@ -21,7 +21,7 @@ os.chdir("C:/Users/Cedric/Desktop/project")
 
 ## trying for the whole json
 # opening and loading the file
-with open("iconclass_20200710_skos_jsonld.json", "r") as jsonline: 
+with open("input/iconclass_20200710_skos_jsonld.json", "r") as jsonline: 
     Lines = jsonline.readlines()
 
 # creating an empty list for the iconclass codes
@@ -42,4 +42,4 @@ dict_codes = {"codes" : codes}
 df = pd.DataFrame(dict_codes)
 
 # exporting the result as an excel
-df.to_csv("icon_class_codes.csv")
+df.to_csv("output/icon_class_codes.csv")

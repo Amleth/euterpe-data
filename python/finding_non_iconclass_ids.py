@@ -9,14 +9,14 @@ import os
 import pandas as pd
 
 # changing working directory
-os.chdir("C:/Users/Cedric/Desktop/project")
+os.chdir("C:/Users/Cedric/Desktop/GIT")
 
 # loading the csv into a list
-iconclasses_df = pd.read_csv("icon_class_codes.csv")
+iconclasses_df = pd.read_csv("output/icon_class_codes.csv")
 iconclasses_list = list(iconclasses_df.iloc[:,1])
 
 # extracting our themes in a list
-themes = pd.read_excel("taxonomies.xlsx", sheet_name="Thème")
+themes = pd.read_excel("input/taxonomies.xlsx", sheet_name="Thème")
 data = list(themes["name"])
 
 # creating an empty list where we store our codes
@@ -53,5 +53,5 @@ df = pd.DataFrame(dict_codes)
 
 # exporting the result as an excel
 # we will then edit the excel manually
-df.to_excel("modification_result.xlsx")
+df.to_excel("output/modification_result.xlsx")
 
