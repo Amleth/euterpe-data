@@ -3,6 +3,9 @@
 # this script adds uris in the input file, to keep the data stable 
 # it is kept outside of the main script
 # this script has already been run and shouldn't be run again
+# update 16/09/2020
+# to facilitate the rdf generation process, we now generate one url per column
+# again, the script has been ran only once
 # Cedric
 # 03/09/2020
 
@@ -56,6 +59,13 @@ for sheet_name in eut_sheets:
     # loading the sheet
     sheet = eut_data[sheet_name]
     
+    # loading dictionary to store columns urls
+    urls_col = {}
+    
+    # we generate lists in the dictionary
+    for col in sheet.keys():
+        urls_col[col] = []
+    
     # generating an uri for every row of the sheet
     for nid in sheet["nid"]:
         
@@ -70,9 +80,33 @@ for sheet_name in eut_sheets:
         
         # incrementing the index
         i += 1
+        
+        """
+        We now generate urls for every column, this is done to facilitate later
+        steps for our turtle rdf generation
+        
+        """
+        
+    
+        ## generating uris per column for future rdf
+        for col in sheet.keys():
+            
+            rd = random.Random()
+            rd.seed(i)
+            uid = uuid.UUID(int=rd.getrandbits(128))
+            uri = "http://data-iremus.huma-num.fr/id/" + str(uid)
+            
+            # storing into the dictionary
+            urls_col[col].append(uri)
+            
+            # incrementing the index
+            i += 1
     
     # adding the uris to our dataframe
     eut_data[sheet_name]["uri"] = uris
+    
+    for col in urls_col:
+        eut_data[sheet_name][col + "_url"] = urls_col[col]
 
 ### saving the excel
 """
