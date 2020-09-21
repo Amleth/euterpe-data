@@ -18,6 +18,7 @@ from rdflib import Graph, RDF, URIRef, Literal
 from rdflib.namespace import SKOS, DC, RDFS
 import uuid
 from rdflib.namespace import Namespace
+import numpy as np
 
 # changing working directory
 os.chdir("C:/Users/Cedric/Desktop/GIT")
@@ -215,7 +216,7 @@ def GenerateTtlThesauri(thes_list, taxo):
     """
     
     # creating our index to generate our random uuids
-    i = 0
+    i = 10 ** 5
     
     for thes in thes_list:
     
@@ -455,3 +456,147 @@ def GenerateTtlPlaces(taxo):
     taxo["Lieu de conservation"] = sheet
     
     return taxo
+
+
+def AddingProductionTid(url_producer, g, nb_r, rand_nb, tid, url_subprod,
+                        concept, concepts_urls, eut_auteurs):
+    
+    
+    str_url = "http://data-iremus.huma-num.fr/id/"
+    
+    # generating cidoc crm namespace
+    crm = Namespace('http://www.cidoc-crm.org/cidoc-crm/')
+    
+    # adding the tid
+    periods = eut_auteurs[tid].loc[eut_auteurs["uri"]==url_producer].iloc[0]
+    if periods is np.nan:
+        None
+    elif len(periods.split(sep=" , ")) > 1 :
+        for one_period in periods.split(sep=" , "):
+            rand_nb.seed(nb_r)
+            url_attri = generate_rdf_url(rand_nb, str_url)
+            nb_r += 1
+            g.add((url_attri, RDF.type, crm.E13_Attribute))
+            g.add((url_attri, crm.p140_assigned_attribute_to, url_subprod))
+            g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
+            g.add((url_attri, crm.p177_assigned_property_type, concepts_urls[concept] ))
+            g.add((url_attri, crm.p141_assigned, URIRef(one_period)))
+        
+    else:
+        rand_nb.seed(nb_r)
+        url_attri = generate_rdf_url(rand_nb, str_url)
+        nb_r += 1
+        g.add((url_attri, RDF.type, crm.E13_Attribute))
+        g.add((url_attri, crm.p140_assigned_attribute_to, url_subprod))
+        g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
+        g.add((url_attri, crm.p177_assigned_property_type, concepts_urls[concept] ))
+        g.add((url_attri, crm.p141_assigned, URIRef(periods)))
+    
+    return g, nb_r
+
+def AddingProducers(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, eut_auteurs):
+    
+    str_url = "http://data-iremus.huma-num.fr/id/"
+    
+    # generating cidoc crm namespace
+    crm = Namespace('http://www.cidoc-crm.org/cidoc-crm/')
+    
+    if urls_producers is np.nan:
+        None
+        
+    elif len(urls_producers.split(sep=" , ")) > 1 :
+        for artist in urls_producers.split(sep=" , "):
+            rand_nb.seed(nb_r)
+            url_subprod = generate_rdf_url(rand_nb, str_url)
+            nb_r += 1
+            g.add((url_subprod, RDF.type, crm.E12_Production))
+            g.add((url_subprod, crm.p9i_forms_part_of, url_prod))
+            g.add((url_subprod, crm.p14_carried_out_by, URIRef(artist)))
+            g, nb_r = AddingProductionTid(artist, g, nb_r, rand_nb,
+                                          "ecole__tid", url_subprod, "url_ecole",
+                                          concepts_urls, eut_auteurs)
+            g, nb_r = AddingProductionTid(artist, g, nb_r, rand_nb,
+                                          "siecle_tid", url_subprod, "url_period",
+                                          concepts_urls, eut_auteurs)
+        
+    else:
+        rand_nb.seed(nb_r)
+        url_subprod = generate_rdf_url(rand_nb, str_url)
+        nb_r += 1
+        g.add((url_subprod, RDF.type, crm.E12_Production))
+        g.add((url_subprod, crm.p9i_forms_part_of, url_prod))
+        g.add((url_subprod, crm.p14_carried_out_by, URIRef(urls_producers)))
+        g, nb_r = AddingProductionTid(urls_producers, g, nb_r, rand_nb,
+                                      "ecole__tid", url_subprod, "url_ecole",
+                                      concepts_urls, eut_auteurs)
+        g, nb_r = AddingProductionTid(urls_producers, g, nb_r, rand_nb,
+                                      "siecle_tid", url_subprod, "url_period",
+                                      concepts_urls, eut_auteurs)
+    
+    return g, nb_r
+
+
+def GeneratingGeneralConcepts(rand_nb, nb_r, str_url, g, crm):
+    """
+    Generates concepts into a rdf graph and outputs their uri in a dictionary
+
+    """
+    
+    # creating the dictionary
+    concepts_urls = {}
+    
+    # generating height triplets
+    rand_nb.seed(nb_r)
+    url_height = generate_rdf_url(rand_nb, str_url)
+    g.add((url_height, RDF.type, crm.E55_Type))
+    g.add((url_height, RDF.type, SKOS.Concept))
+    g.add((url_height, SKOS.prefLabel, Literal("height")))
+    g.add((url_height, SKOS.exactMatch, URIRef("http://collection.britishart.yale.edu/id/object/142/height")))
+    nb_r += 1
+    concepts_urls["height"] = url_height
+    
+    # generating width triplets
+    rand_nb.seed(nb_r)
+    url_width = generate_rdf_url(rand_nb, str_url)
+    g.add((url_width, RDF.type, crm.E55_Type))
+    g.add((url_width, RDF.type, SKOS.Concept))
+    g.add((url_width, SKOS.prefLabel, Literal("width")))
+    g.add((url_width, SKOS.exactMatch, URIRef("http://collection.britishart.yale.edu/id/object/142/width")))
+    nb_r += 1
+    concepts_urls["width"] = url_width
+    
+    # generating centimeters triplets
+    rand_nb.seed(nb_r)
+    url_cm = generate_rdf_url(rand_nb, str_url)
+    g.add((url_cm, RDF.type, crm.E58_Measurement_Unit))
+    g.add((url_cm, RDFS.label, Literal("centimeter")))
+    nb_r += 1
+    concepts_urls["centimeter"] = url_cm
+    
+    # generating euterpe as an actor
+    rand_nb.seed(nb_r)
+    url_eut = generate_rdf_url(rand_nb, str_url)
+    g.add((url_eut, RDF.type, crm.E39_Actor))
+    g.add((url_eut, SKOS.prefLabel, Literal("Euterpe")))
+    nb_r += 1
+    concepts_urls["euterpe"] = url_eut
+    
+    # generating commentaire sur l'auteur
+    rand_nb.seed(nb_r)
+    url_com_period = generate_rdf_url(rand_nb, str_url)
+    g.add((url_com_period, RDF.type, crm.E55_Type))
+    g.add((url_com_period, RDF.type, SKOS.Concept))
+    g.add((url_com_period, SKOS.prefLabel, Literal("Attribution d'une période de production")))
+    nb_r += 1
+    concepts_urls["url_period"] = url_com_period
+    
+    # generating commentaire sur l'école
+    rand_nb.seed(nb_r)
+    url_com_ecole = generate_rdf_url(rand_nb, str_url)
+    g.add((url_com_ecole, RDF.type, crm.E55_Type))
+    g.add((url_com_ecole, RDF.type, SKOS.Concept))
+    g.add((url_com_ecole, SKOS.prefLabel, Literal("Attribution d'une école")))
+    nb_r += 1
+    concepts_urls["url_ecole"] = url_com_ecole
+    
+    return concepts_urls, g
