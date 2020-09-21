@@ -9,12 +9,21 @@
 import os
 import pandas as pd
 import shutil
+from rdflib import Graph
+from rdflib.namespace import Namespace
+from rdflib import Graph, RDF, URIRef, Literal, RDFS, XSD
+from rdflib.namespace import SKOS
+import random
+import numpy as np
 
 # changing working directory
 os.chdir("C:/Users/Cedric/Desktop/GIT")
 
 # importing our functions
 import python.functions as fun
+
+# generating cidoc crm namespace
+crm = Namespace('http://www.cidoc-crm.org/cidoc-crm/')
 
 # copying our original excel sheet in the output
 shutil.copyfile('input/taxonomies.xlsx', 'output/taxonomies_modified.xlsx')
@@ -246,7 +255,6 @@ for sheet_name in eut_sheets:
     # saving the sheet in our dataframe
     eut_data[sheet_name] = sheet
 
-
 ### saving the excel
 print(
 """
@@ -256,3 +264,154 @@ We save our resulting dataframe in the new excel euterpe_data_modified.xlsx
 
 # saving the result in an excel
 fun.SaveExcel(eut_sheets, eut_data, "output/euterpe_data_modified.xlsx")
+
+### generate the ttl for all paintings
+print(
+"""
+We start to generate the ttl for all the paintings of our database
+"""
+)
+
+# loading euterp data
+eut_data = pd.read_excel("output/euterpe_data_modified.xlsx", sheet_name="4_euterpe_images")
+
+# loading persons
+eut_auteurs = pd.read_excel("output/euterpe_data_modified.xlsx", sheet_name="1_auteurs")
+
+# creating the graph object
+g = Graph()
+
+# generate prefixes
+g.bind("skos", SKOS)
+g.bind("crm", crm)
+
+# we load a number used for uuri generation
+nb_r = 10 ** 7
+rand_nb = random.Random()
+
+# string used to generate urls
+str_url = "http://data-iremus.huma-num.fr/id/"
+
+## generating general concepts
+# creating a dictionary to store our general concepts
+concepts_urls, g = fun.GeneratingGeneralConcepts(rand_nb, nb_r, str_url, g, crm)
+
+# looping through the rows
+for i in range(len(eut_data)):
+    piece = eut_data.iloc[i]
+    
+    rd = random.Random()
+    rd.seed(nb_r)
+    
+    piece_url = URIRef(piece["uri"])
+    
+    # creating cidoc instance E22
+    g.add((piece_url, RDF.type, crm.E22_ManMade_Object))
+    
+    ## adding properties
+    g.add((piece_url, crm.p102_has_title, URIRef(piece["titre_url"])))
+    
+    # generating p53 location
+    if piece["lieu_de_conservation_tid"] is np.nan:
+        None
+    elif len(piece["lieu_de_conservation_tid"].split(sep=" , ")) > 1 :
+        for lieu in piece["lieu_de_conservation_tid"].split(sep=" , "):
+            g.add((piece_url, crm.p53_has_former_or_current_location,
+               URIRef(lieu)))
+    else:
+        g.add((piece_url, crm.p53_has_former_or_current_location,
+               URIRef(piece["lieu_de_conservation_tid"])))
+    
+    # generating dimension properties
+    if piece["hauteur"] is np.nan:
+        None
+    else:
+        g.add((piece_url, crm.p43_has_dimension,
+               URIRef(piece["hauteur_url"])))
+        g.add((URIRef(piece["hauteur_url"]), RDF.type, crm.E54_Dimension))
+        g.add((URIRef(piece["hauteur_url"]), crm.p2_has_type, concepts_urls["height"]))
+        g.add((URIRef(piece["hauteur_url"]), crm.p91_has_unit, concepts_urls["centimeter"]))
+        g.add((URIRef(piece["hauteur_url"]), crm.p90_has_value,
+               Literal(piece["hauteur"], datatype=XSD.float)))
+        
+        
+    if piece["largeur"] is np.nan:
+        None
+    else:
+        g.add((piece_url, crm.p43_has_dimension,
+               URIRef(piece["largeur_url"])))
+        g.add((URIRef(piece["largeur_url"]), RDF.type, crm.E54_Dimension))
+        g.add((URIRef(piece["largeur_url"]), crm.p2_has_type, concepts_urls["width"]))
+        g.add((URIRef(piece["largeur_url"]), crm.p91_has_unit, concepts_urls["centimeter"]))
+        g.add((URIRef(piece["largeur_url"]), crm.p90_has_value,
+               Literal(piece["largeur"], datatype=XSD.float)))
+    
+    # adding the title object
+    g.add((URIRef(piece["titre_url"]), RDF.type, crm.E35_Title))
+    g.add((URIRef(piece["titre_url"]), RDFS.label, Literal(piece["titre"])))
+    
+    # creating the image object
+    if piece["image_fid"] is np.nan:
+        None
+    elif len(piece["image_fid"].split(sep=" 🍄 ")) > 1 :
+        for img_id in piece["image_fid"].split(sep=" 🍄 "):
+            rand_nb.seed(nb_r)
+            url_img = fun.generate_rdf_url(rand_nb, str_url)
+            nb_r += 1
+            g.add((piece_url, crm.p138i_has_representation, url_img))
+            g.add((url_img, RDF.type, crm.E36_visual_item))
+            g.add((url_img, RDFS.label, Literal(img_id)))
+    else:
+        rand_nb.seed(nb_r)
+        url_img = fun.generate_rdf_url(rand_nb, str_url)
+        nb_r += 1
+        g.add((piece_url, crm.p138i_has_representation, url_img))
+        g.add((url_img, RDF.type, crm.E36_visual_item))
+        g.add((url_img, RDFS.label, Literal(piece["image_fid"])))
+    
+    ## working on the production object
+    # generating production
+    rand_nb.seed(nb_r)
+    url_prod = fun.generate_rdf_url(rand_nb, str_url)
+    g.add((url_prod, RDF.type, crm.E12_Production))
+    g.add((url_prod, crm.p108_has_produced, piece_url))
+    nb_r += 1
+    
+    # adding the domain (type of work, e.g. painting)
+    if piece["domaine_tid"] is np.nan:
+        None
+    elif len(piece["domaine_tid"].split(sep=" , ")) > 1 :
+        for domaine in piece["domaine_tid"].split(sep=" , "):
+            g.add((url_prod, crm.p2_has_type, URIRef(domaine)))
+    else:
+        g.add((url_prod, crm.p2_has_type, URIRef(piece["domaine_tid"])))
+    
+    # generating date production
+    if piece["date_oeuvre_url"] is np.nan:
+        None
+    else:
+        g.add((url_prod, crm.p4_has_timespan, URIRef(piece["date_oeuvre_url"])))
+        g.add((URIRef(piece["date_oeuvre_url"]), RDF.type, crm.E52_Timespan))
+        g.add((URIRef(piece["date_oeuvre_url"]), RDFS.label, Literal(piece["date_oeuvre"])))
+    
+    ## generating producers
+    # artist
+    g, nb_r = fun.AddingProducers(piece["artiste_target_id"], g, nb_r,
+                                  rand_nb, url_prod, concepts_urls, eut_auteurs)
+    # inventeur
+    g, nb_r = fun.AddingProducers(piece["inventeur_target_id"], g, nb_r,
+                                  rand_nb, url_prod, concepts_urls, eut_auteurs)
+    # graveur
+    g, nb_r = fun.AddingProducers(piece["graveur_target_id"], g, nb_r,
+                                  rand_nb, url_prod, concepts_urls, eut_auteurs)
+    
+# outputting the rdfs as a turtle file
+g.serialize(destination='output/euterpe_data.ttl', format='turtle')
+
+## generating a turtle with cidoc modellisation for the authors
+fun.GenerateTurtleAuthors(crm, eut_auteurs, concepts_urls)
+
+
+
+
+

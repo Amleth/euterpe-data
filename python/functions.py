@@ -588,7 +588,7 @@ def GeneratingGeneralConcepts(rand_nb, nb_r, str_url, g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Attribution d'une période de production")))
     nb_r += 1
-    concepts_urls["url_period"] = url_com_period
+    concepts_urls["url_com_aut"] = url_com_period
     
     # generating commentaire sur l'école
     rand_nb.seed(nb_r)
@@ -600,3 +600,88 @@ def GeneratingGeneralConcepts(rand_nb, nb_r, str_url, g, crm):
     concepts_urls["url_ecole"] = url_com_ecole
     
     return concepts_urls, g
+
+
+def GenerateTurtleAuthors(crm, eut_auteurs, concepts_urls):
+    
+    # creating the graph object
+    g = Graph()
+    
+    # we load a number used for uuri generation
+    nb_r = 10 ** 8
+    rand_nb = random.Random()
+    
+    # string used to generate urls
+    str_url = "http://data-iremus.huma-num.fr/id/"
+    
+    # generate prefixes
+    g.bind("skos", SKOS)
+    g.bind("crm", crm)
+    
+    # looping through the rows
+    for i in range(len(eut_auteurs)):
+        auteur = eut_auteurs.iloc[i]
+        
+        # generating the person
+        g.add((URIRef(auteur["uri"]), RDF.type, crm.E21_Person))
+        
+        # adding the name
+        g.add((URIRef(auteur["uri"]), crm.p1_is_identified_by, URIRef(auteur["nom_url"])))
+        g.add((URIRef(auteur["nom_url"]), RDF.type, crm.E41_Appellation))
+        g.add((URIRef(auteur["nom_url"]), RDFS.label, Literal(auteur["nom"])))
+        
+        # adding birth, generating an url for the timespan
+        if auteur["date_de_naissance"] is np.nan:
+            None
+        else:
+            rand_nb.seed(nb_r)
+            url_timespan1 = generate_rdf_url(rand_nb, str_url)
+            nb_r += 1
+            g.add((URIRef(auteur["uri"]), crm.p100i_died_in, URIRef(auteur["date_de_naissance_url"])))
+            g.add((URIRef(auteur["date_de_naissance_url"]), RDF.type, crm.E67_Birth))
+            g.add((URIRef(auteur["date_de_naissance_url"]), crm.p4_has_timespan, url_timespan1))
+            g.add((url_timespan1, RDF.type, crm.E52_Timespan))
+            g.add((url_timespan1, RDFS.label, Literal(auteur["date_de_naissance"])))
+        
+        # adding death, generating an url for the timespan
+        if auteur["date_de_deces"] is np.nan:
+            None
+        else:
+            rand_nb.seed(nb_r)
+            url_timespan2 = generate_rdf_url(rand_nb, str_url)
+            nb_r += 1
+            g.add((URIRef(auteur["uri"]), crm.p98i_was_born, URIRef(auteur["date_de_deces_url"])))
+            g.add((URIRef(auteur["date_de_deces_url"]), RDF.type, crm.E69_Death))
+            g.add((URIRef(auteur["date_de_deces_url"]), crm.p4_has_timespan, url_timespan2))
+            g.add((url_timespan2, RDF.type, crm.E52_Timespan))
+            g.add((url_timespan2, RDFS.label, Literal(auteur["date_de_deces"])))
+            
+        # adding speciality as a type
+        if auteur["specialite_tid"] is np.nan:
+            None
+        elif len(auteur["specialite_tid"].split(sep=" , ")) > 1 :
+            for spe in auteur["specialite_tid"].split(sep=" , "):
+                g.add((URIRef(auteur["uri"]), crm.p2_has_type, URIRef(spe)))
+        else:
+            g.add((URIRef(auteur["uri"]), crm.p2_has_type, URIRef(URIRef(auteur["specialite_tid"]))))
+            
+        
+        ## adding commentaire as an attribute
+        if auteur["commentaire"] is np.nan:
+            None
+        else:
+            rand_nb.seed(nb_r)
+            url_attri = generate_rdf_url(rand_nb, str_url)
+            nb_r += 1
+            g.add((url_attri, RDF.type, crm.E13_Attribute))
+            g.add((url_attri, crm.p140_assigned_attribute_to, URIRef(auteur["uri"])))
+            g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
+            g.add((url_attri, crm.p177_assigned_property_type, concepts_urls["url_com_aut"] ))
+            g.add((url_attri, crm.p141_assigned, URIRef(auteur["commentaire_url"])))
+            g.add((URIRef(auteur["commentaire_url"]), RDF.type, crm.E73_Information_Object))
+            g.add((URIRef(auteur["commentaire_url"]), RDFS.label, Literal(auteur["commentaire"])))
+        
+    # outputting the rdfs as a turtle file
+    g.serialize(destination='output/auteurs.ttl', format='turtle')
+    
+    return None
