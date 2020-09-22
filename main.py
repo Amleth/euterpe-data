@@ -117,8 +117,10 @@ our turtle rdfs. We then build our urls and store them in the dataframe. We
 )
 
 ## looping throught the different excel sheets and generating a turtle file for each
-taxo = fun.GenerateTtlThesauri(thes_list, taxo)
-taxo = fun.GenerateTtlPlaces(taxo)
+fun.GenerateTtlThesauri(thes_list, taxo)
+fun.GenerateTtlPlaces(taxo)
+fun.GenerateTtlSpecialThesauri(taxo, "Période", crm.E4_Period)
+fun.GenerateTtlSpecialThesauri(taxo, "Thème", crm.E28_Conceptual_Object)
     
 ### calculating coordinates
 print(
@@ -408,7 +410,10 @@ for i in range(len(eut_data)):
 # outputting the rdfs as a turtle file
 g.serialize(destination='output/euterpe_data.ttl', format='turtle')
 
-## generating a turtle with cidoc modellisation for the authors
+### generating a turtle with cidoc modellisation for the authors
+print("""
+      We generate a ttl rdf for the autheurs, with a cidoc modellisation
+      """)
 fun.GenerateTurtleAuthors(crm, eut_auteurs, concepts_urls)
 
 

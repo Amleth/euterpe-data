@@ -23,6 +23,9 @@ import numpy as np
 # changing working directory
 os.chdir("C:/Users/Cedric/Desktop/GIT")
 
+# generating cidoc crm namespace
+crm = Namespace('http://www.cidoc-crm.org/cidoc-crm/')
+
 def DownloadFileGz(url,file_path):
     """
     parameters: url of the file to download, file path where file will be stored
@@ -259,6 +262,7 @@ def GenerateTtlThesauri(thes_list, taxo):
             
             # adding the triples
             g.add((our_url, RDF.type, SKOS.Concept))
+            g.add((our_url, RDF.type, crm.E55_type))
             g.add((our_url, SKOS.prefLabel, Literal(label, lang="fr")))
             g.add((our_url, SKOS.inScheme, scheme_uuri))
         
@@ -272,13 +276,7 @@ def GenerateTtlThesauri(thes_list, taxo):
         # outputting the rdfs as a turtle file
         g.serialize(destination='output/'+thes+'.ttl', format='turtle')
         
-        # adding the uuris to the pd dataframe
-        sheet["urls"] = urls
-        
-        # updating our dataframe
-        taxo[thes] = sheet
-    
-    return taxo
+    return None
 
 
 def generate_rdf_url(rand_nb, str_url):
@@ -449,13 +447,63 @@ def GenerateTtlPlaces(taxo):
     # outputting the rdfs as a turtle file
     g.serialize(destination='output/Lieu de conservation.ttl', format='turtle')
     
-    # adding the uuris to the pd dataframe
-    sheet["urls"] = urls
+    return None
+
+
+def GenerateTtlSpecialThesauri(taxo, thesau, crm_concept):
+    """
+    parameters: a dictionary containing all our dataframes (excel sheets)
+    fun: creates a specific ttl for special thesauri using a different cidoc
+         instance.
+    """
     
-    # updating the data
-    taxo["Lieu de conservation"] = sheet
+    # loading the sheet with places
+    sheet = taxo[thesau]
     
-    return taxo
+    # creating the UURI for the conceptscheme
+    scheme_uuri = URIRef("http://data-iremus.huma-num.fr/id/8f05c7be-1a72-4a0f-81b3-ba9510a789db")
+    
+    # creating the graph object
+    g = Graph()
+    
+    # generate prefixes
+    g.bind("skos", SKOS)
+    g.bind("dc", DC)
+    g.bind("crm", crm)
+    
+    ## creating the triple for the concept scheme
+    # adding triples
+    g.add((scheme_uuri, RDF.type, SKOS.ConceptScheme))
+    g.add((scheme_uuri, DC.title, Literal(thesau, lang="fr")))
+    
+    # create a list to store urls
+    urls = []
+    
+    for label, id_uuri in zip(sheet["name"], sheet["uuid"]):
+            
+        # generating the uri
+        our_url = URIRef("http://data-iremus.huma-num.fr/id/" + str(id_uuri))
+        
+        # storing the uri in a list to add it to the conceptscheme
+        urls.append(our_url)
+        
+        # adding the triples
+        g.add((our_url, RDF.type, SKOS.Concept))
+        g.add((our_url, RDF.type, crm_concept))
+        g.add((our_url, SKOS.prefLabel, Literal(label, lang="fr")))
+        g.add((our_url, SKOS.inScheme, scheme_uuri))
+        
+        # adding the uuri to the conceptscheme
+        for ur in urls:
+            g.add((scheme_uuri, SKOS.hasTopConcept, ur))
+        
+        # vizualizing the result
+        #print(g.serialize(format="turtle").decode("utf-8"))
+        
+        # outputting the rdfs as a turtle file
+        g.serialize(destination='output/'+thesau+'.ttl', format='turtle')
+        
+    return None
 
 
 def AddingProductionTid(url_producer, g, nb_r, rand_nb, tid, url_subprod,
