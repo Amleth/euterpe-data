@@ -117,10 +117,12 @@ our turtle rdfs. We then build our urls and store them in the dataframe. We
 )
 
 ## looping throught the different excel sheets and generating a turtle file for each
-fun.GenerateTtlThesauri(thes_list, taxo)
+taxo = fun.GenerateTtlThesauri(thes_list, taxo)
 fun.GenerateTtlPlaces(taxo)
-fun.GenerateTtlSpecialThesauri(taxo, "Période", crm.E4_Period)
-fun.GenerateTtlSpecialThesauri(taxo, "Thème", crm.E28_Conceptual_Object)
+fun.GenerateTtlSpecialThesauri(taxo, "Période", crm.E4_Period,
+                               "94b50b0d-7202-4c5f-86a7-098cde58f2ee")
+fun.GenerateTtlSpecialThesauri(taxo, "Thème", crm.E28_Conceptual_Object,
+                               "ed05ac60-c461-4eab-be00-d9dd8f816cda")
     
 ### calculating coordinates
 print(
@@ -299,21 +301,39 @@ str_url = "http://data-iremus.huma-num.fr/id/"
 concepts_urls, g = fun.GeneratingGeneralConcepts(rand_nb, nb_r, str_url, g, crm)
 
 # looping through the rows
-for i in range(len(eut_data)):
+for i in range(100):
+    
+    # loading one painting
     piece = eut_data.iloc[i]
     
+    # generating our random number for url generation
     rd = random.Random()
     rd.seed(nb_r)
     
+    # loading the url of the painting
     piece_url = URIRef(piece["uri"])
     
     # creating cidoc instance E22
     g.add((piece_url, RDF.type, crm.E22_ManMade_Object))
     
-    ## adding properties
-    g.add((piece_url, crm.p102_has_title, URIRef(piece["titre_url"])))
     
-    # generating p53 location
+    # adding the title object E35
+    g.add((piece_url, crm.p102_has_title, URIRef(piece["titre_url"])))
+    g.add((URIRef(piece["titre_url"]), RDF.type, crm.E35_Title))
+    g.add((URIRef(piece["titre_url"]), RDFS.label, Literal(piece["titre"])))
+    
+    # adding paintings in relation
+    if piece["voir_aussi_target_id"] is np.nan:
+        None
+    elif len(piece["voir_aussi_target_id"].split(sep=" , ")) > 1 :
+        for peint in piece["voir_aussi_target_id"].split(sep=" , "):
+            g.add((piece_url, RDFS.seeAlso,
+               URIRef(peint)))
+    else:
+        g.add((piece_url, RDFS.seeAlso,
+               URIRef(piece["voir_aussi_target_id"])))
+    
+    # generating p53 location, linking with the ttl location
     if piece["lieu_de_conservation_tid"] is np.nan:
         None
     elif len(piece["lieu_de_conservation_tid"].split(sep=" , ")) > 1 :
@@ -324,19 +344,26 @@ for i in range(len(eut_data)):
         g.add((piece_url, crm.p53_has_former_or_current_location,
                URIRef(piece["lieu_de_conservation_tid"])))
     
-    # generating dimension properties
+    ## generating dimension properties and instances
     if piece["hauteur"] is np.nan:
         None
     else:
+        # linking with the E22
         g.add((piece_url, crm.p43_has_dimension,
                URIRef(piece["hauteur_url"])))
+        
+        # loading E54 dimension instance
         g.add((URIRef(piece["hauteur_url"]), RDF.type, crm.E54_Dimension))
+        
+        # linking with types
         g.add((URIRef(piece["hauteur_url"]), crm.p2_has_type, concepts_urls["height"]))
         g.add((URIRef(piece["hauteur_url"]), crm.p91_has_unit, concepts_urls["centimeter"]))
+        
+        # adding the value
         g.add((URIRef(piece["hauteur_url"]), crm.p90_has_value,
                Literal(piece["hauteur"], datatype=XSD.float)))
         
-        
+    # adding for width
     if piece["largeur"] is np.nan:
         None
     else:
@@ -347,14 +374,24 @@ for i in range(len(eut_data)):
         g.add((URIRef(piece["largeur_url"]), crm.p91_has_unit, concepts_urls["centimeter"]))
         g.add((URIRef(piece["largeur_url"]), crm.p90_has_value,
                Literal(piece["largeur"], datatype=XSD.float)))
-    
-    # adding the title object
-    g.add((URIRef(piece["titre_url"]), RDF.type, crm.E35_Title))
-    g.add((URIRef(piece["titre_url"]), RDFS.label, Literal(piece["titre"])))
-    
+        
+    # adding for depth
+    if piece["profondeur"] is np.nan:
+        None
+    else:
+        g.add((piece_url, crm.p43_has_dimension,
+               URIRef(piece["profondeur_url"])))
+        g.add((URIRef(piece["profondeur_url"]), RDF.type, crm.E54_Dimension))
+        g.add((URIRef(piece["profondeur_url"]), crm.p2_has_type, concepts_urls["depth"]))
+        g.add((URIRef(piece["profondeur_url"]), crm.p91_has_unit, concepts_urls["centimeter"]))
+        g.add((URIRef(piece["profondeur_url"]), crm.p90_has_value,
+               Literal(piece["profondeur"], datatype=XSD.float)))
+        
     # creating the image object
     if piece["image_fid"] is np.nan:
         None
+        
+    # for multiple images
     elif len(piece["image_fid"].split(sep=" 🍄 ")) > 1 :
         for img_id in piece["image_fid"].split(sep=" 🍄 "):
             rand_nb.seed(nb_r)
@@ -363,6 +400,8 @@ for i in range(len(eut_data)):
             g.add((piece_url, crm.p138i_has_representation, url_img))
             g.add((url_img, RDF.type, crm.E36_visual_item))
             g.add((url_img, RDFS.label, Literal(img_id)))
+            
+    # for single image
     else:
         rand_nb.seed(nb_r)
         url_img = fun.generate_rdf_url(rand_nb, str_url)
@@ -372,7 +411,7 @@ for i in range(len(eut_data)):
         g.add((url_img, RDFS.label, Literal(piece["image_fid"])))
     
     ## working on the production object
-    # generating production
+    # generating production instance
     rand_nb.seed(nb_r)
     url_prod = fun.generate_rdf_url(rand_nb, str_url)
     g.add((url_prod, RDF.type, crm.E12_Production))
@@ -397,6 +436,10 @@ for i in range(len(eut_data)):
         g.add((URIRef(piece["date_oeuvre_url"]), RDFS.label, Literal(piece["date_oeuvre"])))
     
     ## generating producers
+    # attributed author
+    g, nb_r = fun.AddingAttributedProducer(piece["attribu__target_id"], g, nb_r, rand_nb, url_prod,
+                             concepts_urls, eut_auteurs, piece_url)
+    
     # artist
     g, nb_r = fun.AddingProducers(piece["artiste_target_id"], g, nb_r,
                                   rand_nb, url_prod, concepts_urls, eut_auteurs)
@@ -407,6 +450,64 @@ for i in range(len(eut_data)):
     g, nb_r = fun.AddingProducers(piece["graveur_target_id"], g, nb_r,
                                   rand_nb, url_prod, concepts_urls, eut_auteurs)
     
+    ## adding the tids (thesauris)
+    # adding the musical instrument as an attribution
+    g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
+                                     "instrument_de_musique_tid", "url_instru")
+    
+    # adding the musical instrument as an attribution
+    g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
+                                     "instrument_de_musique_tid", "url_instru")
+
+    # adding the chant tid as an attribute
+    g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
+                                     "_oeuvre_repr_sent_e_target_id", "url_oeuvre_mus")
+    
+    # adding the represented musical works as an attribute
+    g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
+                                     "musique_ecrite_tid", "url_instru")
+    
+    ## adding the various comments
+    # adding inscription as an attribute
+    g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url,
+                                         concepts_urls, "inscription",
+                                         "url_inscri", crm.E34_Inscription)
+    
+    # adding comment on the technique
+    g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url,
+                                         concepts_urls, "technique", "url_com_tech",
+                                         crm.E73_Information_Object)
+    
+    # adding comment on similar paintings
+    g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url,
+                                         concepts_urls, "oeuvre_en_rapport", "url_oeuvre_rapport",
+                                         crm.E73_Information_Object)
+    
+    # adding commentaire sur l'oeuvre precision_oeuvre
+    g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url,
+                                         concepts_urls, "precision_oeuvre",
+                                         "url_com_oeuvre", crm.E73_Information_Object )
+    
+    # adding commentaire sur l'instrument pr_cision_instrument
+    g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url,
+                                         concepts_urls, "pr_cision_instrument",
+                                         "url_com_instru", crm.E73_Information_Object)
+    
+    # adding commentaire sur l'oeuvre (other column)
+    g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url,
+                                         concepts_urls, "commentaire",
+                                         "url_com_oeuvre", crm.E73_Information_Object)
+    
+    # adding comment on the music
+    g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url,
+                                         concepts_urls, "pr_cision_musique",
+                                         "url_com_mus", crm.E73_Information_Object)
+    
+    # adding reference to a literary work
+    g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url,
+                                         concepts_urls, "source_litteraire",
+                                         "url_source_litt", crm.E33_Linguistic_Object)
+    
 # outputting the rdfs as a turtle file
 g.serialize(destination='output/euterpe_data.ttl', format='turtle')
 
@@ -414,9 +515,16 @@ g.serialize(destination='output/euterpe_data.ttl', format='turtle')
 print("""
       We generate a ttl rdf for the autheurs, with a cidoc modellisation
       """)
+      
 fun.GenerateTurtleAuthors(crm, eut_auteurs, concepts_urls)
 
+### generating a turtle with cidoc modellisation for the musical works
+print("""
+      We generate a ttl rdf for the autheurs, with a cidoc modellisation
+      """)
+      
+      
+# loading musical works
+eut_music_works = pd.read_excel("output/euterpe_data_modified.xlsx", sheet_name="5_oeuvres_lyriques")
 
-
-
-
+fun.GenerateTurtleMusicWorks(crm, eut_music_works, concepts_urls)
