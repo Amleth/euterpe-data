@@ -15,6 +15,7 @@ from rdflib import Graph, RDF, URIRef, Literal, RDFS, XSD
 from rdflib.namespace import SKOS
 import random
 import numpy as np
+import json
 
 # changing working directory
 os.chdir("C:/Users/Cedric/Desktop/GIT")
@@ -24,6 +25,7 @@ import python.functions as fun
 
 # generating cidoc crm namespace
 crm = Namespace('http://www.cidoc-crm.org/cidoc-crm/')
+iremus = Namespace('http://data-iremus.huma-num.fr/id/')
 
 # copying our original excel sheet in the output
 shutil.copyfile('input/taxonomies.xlsx', 'output/taxonomies_modified.xlsx')
@@ -112,13 +114,17 @@ taxo["Thème"]["modification"] = modified
 print(
 """
 We extract our uuids and create new ones for each thesaurus, and then generate
-our turtle rdfs. We then build our urls and store them in the dataframe. We 
+our turtle rdfs. We then build our urls and store them in the dataframe.
 """
 )
 
+## this number will be used throughout the file to generate new uuris
+nb_r = 10 **5
+
 ## looping throught the different excel sheets and generating a turtle file for each
-taxo = fun.GenerateTtlThesauri(thes_list, taxo)
-fun.GenerateTtlPlaces(taxo)
+taxo, nb_r = fun.GenerateTtlThesauri(thes_list, taxo, nb_r)
+
+# changing special thesauri
 fun.GenerateTtlSpecialThesauri(taxo, "Période", crm.E4_Period,
                                "94b50b0d-7202-4c5f-86a7-098cde58f2ee")
 fun.GenerateTtlSpecialThesauri(taxo, "Thème", crm.E28_Conceptual_Object,
@@ -133,15 +139,28 @@ With a slow connection this might takes some time
 """
 )
 
-## extracting cities strings and putting them in a list
-# extracting our themes in a list
-names = list(taxo["Lieu de conservation"]["name"])
-
-# extracting the coordinates from the list of names and the dataframe
-coords = fun.ExtractCoordinates(names, "collection privée")
-
-# saving the coords in our dataframe
-taxo["Lieu de conservation"]["coords_wgs84"] = coords
+# if the coordinates are not extracted we save them 
+if os.path.isfile('output/coordinates.json'):
+    None
+else:
+    ## extracting cities strings and putting them in a list
+    # extracting our themes in a list
+    names = list(taxo["Lieu de conservation"]["name"])
+    
+    # extracting the coordinates from the list of names and the dataframe
+    dict_coords = fun.ExtractCoordinates(names, "collection privée")
+    
+    # we save into a json
+    with open('output/coordinates.json', 'w', encoding='utf8') as fp:
+        json.dump(dict_coords, fp, ensure_ascii=False)
+        
+        
+# importing the coordinates
+with open('output/coordinates.json', encoding='utf8') as json_file:
+    dict_coords = json.load(json_file)
+        
+# generating the rdf for places
+nb_r = fun.GenerateTtlPlaces(taxo, nb_r, dict_coords)
 
 ### saving the excel
 print(
@@ -282,26 +301,34 @@ eut_data = pd.read_excel("output/euterpe_data_modified.xlsx", sheet_name="4_eute
 # loading persons
 eut_auteurs = pd.read_excel("output/euterpe_data_modified.xlsx", sheet_name="1_auteurs")
 
+# creating the graph object for our concepts
+g = Graph()
+
+## generating general concepts
+# creating a dictionary to store our general concepts
+concepts_urls, g = fun.GeneratingGeneralConcepts(g, crm)
+
+# outputting the rdfs as a turtle file
+g.serialize(destination='output/concepts.ttl', format='turtle')
+
 # creating the graph object
 g = Graph()
 
 # generate prefixes
 g.bind("skos", SKOS)
 g.bind("crm", crm)
+g.bind("rdf", RDF)
+g.bind("rdfs", RDFS)
+g.bind("iremus", iremus)
 
 # we load a number used for uuri generation
-nb_r = 10 ** 7
 rand_nb = random.Random()
 
 # string used to generate urls
 str_url = "http://data-iremus.huma-num.fr/id/"
 
-## generating general concepts
-# creating a dictionary to store our general concepts
-concepts_urls, g = fun.GeneratingGeneralConcepts(rand_nb, nb_r, str_url, g, crm)
-
 # looping through the rows
-for i in range(100):
+for i in range(len(eut_data)):
     
     # loading one painting
     piece = eut_data.iloc[i]
@@ -376,16 +403,16 @@ for i in range(100):
                Literal(piece["largeur"], datatype=XSD.float)))
         
     # adding for depth
-    if piece["profondeur"] is np.nan:
+    if piece["profondeur_en_cm"] is np.nan:
         None
     else:
         g.add((piece_url, crm.p43_has_dimension,
-               URIRef(piece["profondeur_url"])))
-        g.add((URIRef(piece["profondeur_url"]), RDF.type, crm.E54_Dimension))
-        g.add((URIRef(piece["profondeur_url"]), crm.p2_has_type, concepts_urls["depth"]))
-        g.add((URIRef(piece["profondeur_url"]), crm.p91_has_unit, concepts_urls["centimeter"]))
-        g.add((URIRef(piece["profondeur_url"]), crm.p90_has_value,
-               Literal(piece["profondeur"], datatype=XSD.float)))
+               URIRef(piece["profondeur_en_cm_url"])))
+        g.add((URIRef(piece["profondeur_en_cm_url"]), RDF.type, crm.E54_Dimension))
+        g.add((URIRef(piece["profondeur_en_cm_url"]), crm.p2_has_type, concepts_urls["depth"]))
+        g.add((URIRef(piece["profondeur_en_cm_url"]), crm.p91_has_unit, concepts_urls["centimeter"]))
+        g.add((URIRef(piece["profondeur_en_cm_url"]), crm.p90_has_value,
+               Literal(piece["profondeur_en_cm"], datatype=XSD.float)))
         
     # creating the image object
     if piece["image_fid"] is np.nan:
@@ -423,12 +450,12 @@ for i in range(100):
         None
     elif len(piece["domaine_tid"].split(sep=" , ")) > 1 :
         for domaine in piece["domaine_tid"].split(sep=" , "):
-            g.add((url_prod, crm.p2_has_type, URIRef(domaine)))
+            g.add((url_prod, crm.p32_used_general_technique, URIRef(domaine)))
     else:
         g.add((url_prod, crm.p2_has_type, URIRef(piece["domaine_tid"])))
     
     # generating date production
-    if piece["date_oeuvre_url"] is np.nan:
+    if piece["date_oeuvre"] is np.nan:
         None
     else:
         g.add((url_prod, crm.p4_has_timespan, URIRef(piece["date_oeuvre_url"])))
@@ -437,8 +464,44 @@ for i in range(100):
     
     ## generating producers
     # attributed author
-    g, nb_r = fun.AddingAttributedProducer(piece["attribu__target_id"], g, nb_r, rand_nb, url_prod,
-                             concepts_urls, eut_auteurs, piece_url)
+    g, nb_r = fun.AddingAttributedProducer(piece["attribu__target_id"], g,
+                                           nb_r, rand_nb, url_prod,
+                             concepts_urls, eut_auteurs, piece_url, "url_attri")
+    
+    # attributed school
+    g, nb_r = fun.AddingAttributedProducer(piece["_cole_de_target_id"],
+                                           g, nb_r, rand_nb, url_prod,
+                             concepts_urls, eut_auteurs, piece_url, "url_paint_school")
+    
+    # former attribution
+    g, nb_r = fun.AddingAttributedProducer(piece["ancienne_attribution_target_id"],
+                                           g, nb_r, rand_nb, url_prod,
+                             concepts_urls, eut_auteurs, piece_url, "url_former_attribution")
+    
+    # copy from a certain painter's work
+    g, nb_r = fun.AddingAttributedProducer(piece["d_apr_s_target_id"],
+                                           g, nb_r, rand_nb, url_prod,
+                             concepts_urls, eut_auteurs, piece_url, "url_dapres")
+    
+    # painting from an atelier of a painter
+    g, nb_r = fun.AddingAttributedProducer(piece["atelier_de_target_id"],
+                                           g, nb_r, rand_nb, url_prod,
+                             concepts_urls, eut_auteurs, piece_url, "url_atelier")
+    
+    # painting copied from an author's work
+    g, nb_r = fun.AddingAttributedProducer(piece["copie_d_apr_s_target_id"],
+                                           g, nb_r, rand_nb, url_prod,
+                             concepts_urls, eut_auteurs, piece_url, "url_copy")
+    
+    # painting à la manière de
+    g, nb_r = fun.AddingAttributedProducer(piece["mani_re_de_target_id"],
+                                           g, nb_r, rand_nb, url_prod,
+                             concepts_urls, eut_auteurs, piece_url, "url_manière")
+    
+    # painting genre de
+    g, nb_r = fun.AddingAttributedProducer(piece["genre_de_target_id"],
+                                           g, nb_r, rand_nb, url_prod,
+                             concepts_urls, eut_auteurs, piece_url, "url_genre")
     
     # artist
     g, nb_r = fun.AddingProducers(piece["artiste_target_id"], g, nb_r,
@@ -455,17 +518,25 @@ for i in range(100):
     g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
                                      "instrument_de_musique_tid", "url_instru")
     
-    # adding the musical instrument as an attribution
+    # adding represented oeuvre musicale as an attribution
     g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
-                                     "instrument_de_musique_tid", "url_instru")
+                                     "_oeuvre_repr_sent_e_target_id", "url_oeuvre_mus")
 
-    # adding the chant tid as an attribute
+    # adding the represented musical works as an attribute
     g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
                                      "_oeuvre_repr_sent_e_target_id", "url_oeuvre_mus")
     
     # adding the represented musical works as an attribute
     g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
-                                     "musique_ecrite_tid", "url_instru")
+                                     "musique_ecrite_tid", "url_not_music")
+    
+    # adding the chant tid as an attribute
+    g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
+                                     "chant_tid", "url_chant")
+    
+    # adding the theme as an attribute
+    g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
+                                     "theme_tid", "url_theme")
     
     ## adding the various comments
     # adding inscription as an attribute
@@ -473,9 +544,13 @@ for i in range(100):
                                          concepts_urls, "inscription",
                                          "url_inscri", crm.E34_Inscription)
     
+    g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url,
+                                         concepts_urls, "bibliographie",
+                                         "url_bibli", crm.E73_Information_Object)
+    
     # adding comment on the technique
     g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url,
-                                         concepts_urls, "technique", "url_com_tech",
+                                         concepts_urls, "technique", "url_ind_tech",
                                          crm.E73_Information_Object)
     
     # adding comment on similar paintings
@@ -506,7 +581,7 @@ for i in range(100):
     # adding reference to a literary work
     g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url,
                                          concepts_urls, "source_litteraire",
-                                         "url_source_litt", crm.E33_Linguistic_Object)
+                                         "url_source_litt", crm.E73_Information_Object)
     
 # outputting the rdfs as a turtle file
 g.serialize(destination='output/euterpe_data.ttl', format='turtle')
@@ -516,15 +591,15 @@ print("""
       We generate a ttl rdf for the autheurs, with a cidoc modellisation
       """)
       
-fun.GenerateTurtleAuthors(crm, eut_auteurs, concepts_urls)
+nb_r = fun.GenerateTurtleAuthors(crm, eut_auteurs, concepts_urls, nb_r)
 
 ### generating a turtle with cidoc modellisation for the musical works
 print("""
-      We generate a ttl rdf for the autheurs, with a cidoc modellisation
+      We generate a ttl rdf for lyrical works
       """)
-      
       
 # loading musical works
 eut_music_works = pd.read_excel("output/euterpe_data_modified.xlsx", sheet_name="5_oeuvres_lyriques")
 
-fun.GenerateTurtleMusicWorks(crm, eut_music_works, concepts_urls)
+nb_r = fun.GenerateTurtleMusicWorks(crm, eut_music_works, concepts_urls, eut_auteurs)
+
