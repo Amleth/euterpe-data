@@ -38,19 +38,26 @@ iconclass.org, and we save the codes in a csv
 """
 )
 
-## downloading the json file with all iconclass codes
-url = 'http://iconclass.org/data/iconclass_20200710_skos_jsonld.ndjson.gz'
-json_path_comp = "input/iconclass_20200710_skos_jsonld.ndjson.gz"
-fun.DownloadFileGz(url, json_path_comp)
+if os.path.isfile('output/icon_class_codes.csv'):
+    # extracting our themes in a list
+    iconclasses_list = list(pd.read_csv("output/icon_class_codes.csv")["codes"])
+else:
+    ## downloading the json file with all iconclass codes
+    url = 'http://iconclass.org/data/iconclass_20200710_skos_jsonld.ndjson.gz'
+    json_path_comp = "input/iconclass_20200710_skos_jsonld.ndjson.gz"
+    fun.DownloadFileGz(url, json_path_comp)
+    
+    ## extracting codes from the json and storing it in a list
+    path_json = "input/iconclass_20200710_skos_jsonld.ndjson"
+    key = "skos:notation"
+    file_output = "output/icon_class_codes.csv"
+    
+    iconclasses_list = fun.ExtractingFromJson(path_json, key, file_output)
+    
+    # deleting the json file
+    os.remove("input/iconclass_20200710_skos_jsonld.ndjson")
+    
 
-## extracting codes from the json and storing it in a list
-path_json = "input/iconclass_20200710_skos_jsonld.ndjson"
-key = "skos:notation"
-file_output = "output/icon_class_codes.csv"
-iconclasses_list = fun.ExtractingFromJson(path_json, key, file_output)
-
-# deleting the json file
-os.remove("input/iconclass_20200710_skos_jsonld.ndjson")
 
 ### finding non iconclass ids
 print(
@@ -304,6 +311,13 @@ eut_auteurs = pd.read_excel("output/euterpe_data_modified.xlsx", sheet_name="1_a
 # creating the graph object for our concepts
 g = Graph()
 
+# generate prefixes
+g.bind("skos", SKOS)
+g.bind("crm", crm)
+g.bind("rdf", RDF)
+g.bind("rdfs", RDFS)
+g.bind("iremus", iremus)
+
 ## generating general concepts
 # creating a dictionary to store our general concepts
 concepts_urls, g = fun.GeneratingGeneralConcepts(g, crm)
@@ -389,6 +403,25 @@ for i in range(len(eut_data)):
         # adding the value
         g.add((URIRef(piece["hauteur_url"]), crm.p90_has_value,
                Literal(piece["hauteur"], datatype=XSD.float)))
+        
+    # adding for diameter
+    if piece["diametre"] is np.nan:
+        None
+    else:
+        # linking with the E22
+        g.add((piece_url, crm.p43_has_dimension,
+               URIRef(piece["diametre_url"])))
+        
+        # loading E54 dimension instance
+        g.add((URIRef(piece["diametre_url"]), RDF.type, crm.E54_Dimension))
+        
+        # linking with types
+        g.add((URIRef(piece["diametre_url"]), crm.p2_has_type, concepts_urls["diameter"]))
+        g.add((URIRef(piece["diametre_url"]), crm.p91_has_unit, concepts_urls["centimeter"]))
+        
+        # adding the value
+        g.add((URIRef(piece["diametre_url"]), crm.p90_has_value,
+               Literal(piece["diametre"], datatype=XSD.float)))
         
     # adding for width
     if piece["largeur"] is np.nan:
@@ -498,6 +531,11 @@ for i in range(len(eut_data)):
                                            g, nb_r, rand_nb, url_prod,
                              concepts_urls, eut_auteurs, piece_url, "url_manière")
     
+    # inventeur
+    g, nb_r = fun.AddingAttributedProducer(piece["inventeur_target_id"], g, nb_r,
+                                  rand_nb, concepts_urls, eut_auteurs, piece_url,
+                                  "url_invent")
+    
     # painting genre de
     g, nb_r = fun.AddingAttributedProducer(piece["genre_de_target_id"],
                                            g, nb_r, rand_nb, url_prod,
@@ -505,13 +543,18 @@ for i in range(len(eut_data)):
     
     # artist
     g, nb_r = fun.AddingProducers(piece["artiste_target_id"], g, nb_r,
-                                  rand_nb, url_prod, concepts_urls, eut_auteurs)
-    # inventeur
-    g, nb_r = fun.AddingProducers(piece["inventeur_target_id"], g, nb_r,
-                                  rand_nb, url_prod, concepts_urls, eut_auteurs)
+                                  rand_nb, url_prod, concepts_urls, eut_auteurs,
+                                  "524db20d-156d-4c1e-b60f-a69e59b722ea")
+    
+    # éditeur
+    g, nb_r = fun.AddingProducers(piece["_diteur_target_id"], g, nb_r,
+                                  rand_nb, url_prod, concepts_urls, eut_auteurs,
+                                  "8a2902e4-434f-461d-882e-9c243ebef0b2")
+    
     # graveur
     g, nb_r = fun.AddingProducers(piece["graveur_target_id"], g, nb_r,
-                                  rand_nb, url_prod, concepts_urls, eut_auteurs)
+                                  rand_nb, url_prod, concepts_urls, eut_auteurs,
+                                  "2b20adc9-54a8-4573-8347-2a994809e622")
     
     ## adding the tids (thesauris)
     # adding the musical instrument as an attribution
@@ -526,7 +569,7 @@ for i in range(len(eut_data)):
     g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
                                      "_oeuvre_repr_sent_e_target_id", "url_oeuvre_mus")
     
-    # adding the represented musical works as an attribute
+    # adding the musical notation in the piece
     g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
                                      "musique_ecrite_tid", "url_not_music")
     
@@ -544,12 +587,13 @@ for i in range(len(eut_data)):
                                          concepts_urls, "inscription",
                                          "url_inscri", crm.E34_Inscription)
     
+    # adding the bibliography
     g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url,
                                          concepts_urls, "bibliographie",
                                          "url_bibli", crm.E73_Information_Object)
     
     # adding comment on the technique
-    g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url,
+    g, nb_r = fun.AddingCommentAttribute(piece, rand_nb, nb_r, g, url_prod,
                                          concepts_urls, "technique", "url_ind_tech",
                                          crm.E73_Information_Object)
     

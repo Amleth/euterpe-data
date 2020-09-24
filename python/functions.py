@@ -72,6 +72,7 @@ def ExtractingFromJson(path, key, path_output):
     # some lines are not json so they are removed with an exception
     print("""Extracting codes from the json file. Non-readable lines are
           printed.""")
+          
     for line in Lines:
         try:
             data = json.loads(line)
@@ -241,6 +242,8 @@ def GenerateTtlThesauri(thes_list, taxo, i):
         # generate prefixes
         g.bind("skos", SKOS)
         g.bind("dc", DC)
+        iremus = Namespace('http://data-iremus.huma-num.fr/id/')
+        g.bind("iremus", iremus)
         
         ## creating the triple for the concept scheme
         # adding triples
@@ -340,6 +343,8 @@ def GenerateTtlPlaces(taxo, nb_r, coordinates):
     g.bind("crm", crm)
     g.bind("rdf", RDF)
     g.bind("rdfs", RDFS)
+    iremus = Namespace('http://data-iremus.huma-num.fr/id/')
+    g.bind("iremus", iremus)
     
     ## creating the triple for the concept scheme
     # adding triples
@@ -385,6 +390,7 @@ def GenerateTtlPlaces(taxo, nb_r, coordinates):
             url_coord = generate_rdf_url(rand_nb, str_url)
             nb_r += 1
             g.add((url_city, crm.p172_contains, url_coord))
+            g.add((url_coord, RDF.type, crm.E94_Space_Primitive))
             g.add((url_coord, RDFS.label, Literal(coordinates[name_c])))
         except:
             None
@@ -488,7 +494,9 @@ def GenerateTtlSpecialThesauri(taxo, thesau, crm_concept, uuid):
     g.bind("skos", SKOS)
     g.bind("dc", DC)
     g.bind("crm", crm)
-    
+    iremus = Namespace('http://data-iremus.huma-num.fr/id/')
+    g.bind("iremus", iremus)
+
     ## creating the triple for the concept scheme
     # adding triples
     g.add((scheme_uuri, RDF.type, SKOS.ConceptScheme))
@@ -552,7 +560,7 @@ def AddingProductionTid(url_producer, g, nb_r, rand_nb, tid, url_subprod,
             rand_nb.seed(nb_r)
             url_attri = generate_rdf_url(rand_nb, str_url)
             nb_r += 1
-            g.add((url_attri, RDF.type, crm.E13_Attribute))
+            g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
             g.add((url_attri, crm.p140_assigned_attribute_to, url_subprod))
             g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
             g.add((url_attri, crm.p177_assigned_property_type, concepts_urls[concept] ))
@@ -562,7 +570,7 @@ def AddingProductionTid(url_producer, g, nb_r, rand_nb, tid, url_subprod,
         rand_nb.seed(nb_r)
         url_attri = generate_rdf_url(rand_nb, str_url)
         nb_r += 1
-        g.add((url_attri, RDF.type, crm.E13_Attribute))
+        g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
         g.add((url_attri, crm.p140_assigned_attribute_to, url_subprod))
         g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
         g.add((url_attri, crm.p177_assigned_property_type, concepts_urls[concept] ))
@@ -570,7 +578,8 @@ def AddingProductionTid(url_producer, g, nb_r, rand_nb, tid, url_subprod,
     
     return g, nb_r
 
-def AddingProducers(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, eut_auteurs):
+def AddingProducers(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, eut_auteurs,
+                     url_role):
     """
     Parameters (in order): urls of the authors, graphe rdf, index for number
         generation, random generator object, url of the main production event,
@@ -604,6 +613,17 @@ def AddingProducers(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, e
             g, nb_r = AddingProductionTid(artist, g, nb_r, rand_nb,
                                           "siecle_tid", url_subprod, "url_period",
                                           concepts_urls, eut_auteurs)
+            
+            # adding the role as an attribute
+            rand_nb.seed(nb_r)
+            url_attri = generate_rdf_url(rand_nb, str_url)
+            nb_r += 1
+            g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
+            g.add((url_attri, crm.p140_assigned_attribute_to, url_subprod))
+            g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
+            g.add((url_attri, crm.p177_assigned_property_type, concepts_urls["url_role"] ))
+            g.add((url_attri, crm.p141_assigned, URIRef(url_role)))
+            
     # in case of a unique value
     else:
         rand_nb.seed(nb_r)
@@ -618,11 +638,22 @@ def AddingProducers(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, e
         g, nb_r = AddingProductionTid(urls_producers, g, nb_r, rand_nb,
                                       "siecle_tid", url_subprod, "url_period",
                                       concepts_urls, eut_auteurs)
+        
+        # adding the role as an attribute
+        rand_nb.seed(nb_r)
+        url_attri = generate_rdf_url(rand_nb, str_url)
+        nb_r += 1
+        g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
+        g.add((url_attri, crm.p140_assigned_attribute_to, url_subprod))
+        g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
+        g.add((url_attri, crm.p177_assigned_property_type, concepts_urls["url_role"]))
+        g.add((url_attri, crm.p141_assigned, URIRef(url_role)))
     
     return g, nb_r
 
 
-def AddingCreators(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, eut_auteurs):
+def AddingCreators(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, eut_auteurs,
+                   url_role):
     """
     Function similar to AddingProducers but uses instance E65_Creation instead
             of Production
@@ -651,6 +682,16 @@ def AddingCreators(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, eu
             g, nb_r = AddingProductionTid(artist, g, nb_r, rand_nb,
                                           "siecle_tid", url_subprod, "url_period",
                                           concepts_urls, eut_auteurs)
+            
+            # adding the role as an attribute
+            rand_nb.seed(nb_r)
+            url_attri = generate_rdf_url(rand_nb, str_url)
+            nb_r += 1
+            g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
+            g.add((url_attri, crm.p140_assigned_attribute_to, url_subprod))
+            g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
+            g.add((url_attri, crm.p177_assigned_property_type, concepts_urls["url_role"] ))
+            g.add((url_attri, crm.p141_assigned, URIRef(url_role)))
         
     else:
         rand_nb.seed(nb_r)
@@ -665,6 +706,16 @@ def AddingCreators(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, eu
         g, nb_r = AddingProductionTid(urls_producers, g, nb_r, rand_nb,
                                       "siecle_tid", url_subprod, "url_period",
                                       concepts_urls, eut_auteurs)
+        
+        # adding the role as an attribute
+        rand_nb.seed(nb_r)
+        url_attri = generate_rdf_url(rand_nb, str_url)
+        nb_r += 1
+        g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
+        g.add((url_attri, crm.p140_assigned_attribute_to, url_subprod))
+        g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
+        g.add((url_attri, crm.p177_assigned_property_type, concepts_urls["url_role"] ))
+        g.add((url_attri, crm.p141_assigned, URIRef(url_role)))
     
     return g, nb_r
 
@@ -692,7 +743,7 @@ def AddingAttributedProducer(urls_producers, g, nb_r, rand_nb, url_prod,
             rand_nb.seed(nb_r)
             url_subprod = generate_rdf_url(rand_nb, str_url)
             nb_r += 1
-            g.add((url_attri, RDF.type, crm.E13_Attribute))
+            g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
             g.add((url_attri, crm.p140_assigned_attribute_to, url_subprod))
             g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
             g.add((url_attri, crm.p177_assigned_property_type, concepts_urls[concept] ))
@@ -712,7 +763,7 @@ def AddingAttributedProducer(urls_producers, g, nb_r, rand_nb, url_prod,
         rand_nb.seed(nb_r)
         url_subprod = generate_rdf_url(rand_nb, str_url)
         nb_r += 1
-        g.add((url_attri, RDF.type, crm.E13_Attribute))
+        g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
         g.add((url_attri, crm.p140_assigned_attribute_to, url_subprod))
         g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
         g.add((url_attri, crm.p177_assigned_property_type, concepts_urls[concept] ))
@@ -763,6 +814,13 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_width, RDF.type, SKOS.Concept))
     g.add((url_width, SKOS.prefLabel, Literal("depth")))
     concepts_urls["depth"] = url_width
+    
+    # generating depth triplets
+    url_width = URIRef(str_url + "9aa1e800-4435-4f2e-9255-5a781945e2ef")
+    g.add((url_width, RDF.type, crm.E55_Type))
+    g.add((url_width, RDF.type, SKOS.Concept))
+    g.add((url_width, SKOS.prefLabel, Literal("diameter")))
+    concepts_urls["diameter"] = url_width
     
     # generating centimeters triplets
     url_cm = URIRef(str_url + "2f367772-afde-40ee-83bf-0690af8df959")
@@ -873,6 +931,13 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, SKOS.prefLabel, Literal("Source littéraire")))
     concepts_urls["url_source_litt"] = url_com_period
     
+    # generating commentaire source littéraire
+    url_com_period = URIRef(str_url + "7d0bcdff-7edf-4745-a6d9-dc9b58e6befa")
+    g.add((url_com_period, RDF.type, crm.E55_Type))
+    g.add((url_com_period, RDF.type, SKOS.Concept))
+    g.add((url_com_period, SKOS.prefLabel, Literal("Attribution d'un inventeur")))
+    concepts_urls["url_invent"] = url_com_period
+    
     # generating identification notation musicale
     url_com_period = URIRef(str_url + "8f8396c7-f6d7-4dd0-b2b2-6af39cd58741")
     g.add((url_com_period, RDF.type, crm.E55_Type))
@@ -943,6 +1008,13 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, SKOS.prefLabel, Literal("Genre de")))
     concepts_urls["url_genre"] = url_com_period
     
+    # generating roles
+    url_com_period = URIRef(str_url + "22cd61b5-f1d2-4fd2-862e-0f1cb60a2e21")
+    g.add((url_com_period, RDF.type, crm.E55_Type))
+    g.add((url_com_period, RDF.type, SKOS.Concept))
+    g.add((url_com_period, SKOS.prefLabel, Literal("Rôle dans la production")))
+    concepts_urls["url_role"] = url_com_period
+    
     return concepts_urls, g
 
 
@@ -967,6 +1039,8 @@ def GenerateTurtleAuthors(crm, eut_auteurs, concepts_urls, nb_r):
     g.bind("crm", crm)
     g.bind("rdf", RDF)
     g.bind("rdfs", RDFS)
+    iremus = Namespace('http://data-iremus.huma-num.fr/id/')
+    g.bind("iremus", iremus)
     
     # looping through the rows
     for i in range(len(eut_auteurs)):
@@ -1023,7 +1097,7 @@ def GenerateTurtleAuthors(crm, eut_auteurs, concepts_urls, nb_r):
             rand_nb.seed(nb_r)
             url_attri = generate_rdf_url(rand_nb, str_url)
             nb_r += 1
-            g.add((url_attri, RDF.type, crm.E13_Attribute))
+            g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
             g.add((url_attri, crm.p140_assigned_attribute_to, URIRef(auteur["uri"])))
             g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
             g.add((url_attri, crm.p177_assigned_property_type, concepts_urls["url_com_aut"] ))
@@ -1061,7 +1135,7 @@ def AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls, tid,
             rand_nb.seed(nb_r)
             url_attri = generate_rdf_url(rand_nb, str_url)
             nb_r += 1
-            g.add((url_attri, RDF.type, crm.E13_Attribute))
+            g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
             g.add((url_attri, crm.p140_assigned_attribute_to, piece_url))
             g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
             g.add((url_attri, crm.p177_assigned_property_type, concepts_urls[url_concept] ))
@@ -1072,7 +1146,7 @@ def AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls, tid,
         rand_nb.seed(nb_r)
         url_attri = generate_rdf_url(rand_nb, str_url)
         nb_r += 1
-        g.add((url_attri, RDF.type, crm.E13_Attribute))
+        g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
         g.add((url_attri, crm.p140_assigned_attribute_to, piece_url))
         g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
         g.add((url_attri, crm.p177_assigned_property_type, concepts_urls[url_concept] ))
@@ -1096,7 +1170,7 @@ def AddingCommentAttribute(piece, rand_nb, nb_r, g, piece_url, concepts_urls, co
         rand_nb.seed(nb_r)
         url_attri = generate_rdf_url(rand_nb, str_url)
         nb_r += 1
-        g.add((url_attri, RDF.type, crm.E13_Attribute))
+        g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
         g.add((url_attri, crm.p140_assigned_attribute_to, piece_url))
         g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
         g.add((url_attri, crm.p177_assigned_property_type, concepts_urls[url_concept] ))
@@ -1128,6 +1202,8 @@ def GenerateTurtleMusicWorks(crm, eut_music_works, concepts_urls, eut_auteurs, n
     g.bind("crm", crm)
     g.bind("rdf", RDF)
     g.bind("rdfs", RDFS)
+    iremus = Namespace('http://data-iremus.huma-num.fr/id/')
+    g.bind("iremus", iremus)
     
     # looping through the rows
     for i in range(len(eut_music_works)):
@@ -1158,7 +1234,7 @@ def GenerateTurtleMusicWorks(crm, eut_music_works, concepts_urls, eut_auteurs, n
             rand_nb.seed(nb_r)
             url_attri = generate_rdf_url(rand_nb, str_url)
             nb_r += 1
-            g.add((url_attri, RDF.type, crm.E13_Attribute))
+            g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
             g.add((url_attri, crm.p140_assigned_attribute_to, uri_work))
             g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
             g.add((url_attri, crm.p177_assigned_property_type, concepts_urls["url_com_oeuvre"] ))
@@ -1176,12 +1252,15 @@ def GenerateTurtleMusicWorks(crm, eut_music_works, concepts_urls, eut_auteurs, n
         
         # artist
         g, nb_r = AddingCreators(work["librettiste_target_id"], g, nb_r,
-                                      rand_nb, url_prod, concepts_urls, eut_auteurs)
+                                      rand_nb, url_prod, concepts_urls, eut_auteurs,
+                                      "d79389e9-172f-4654-b053-f4648bc32ced")
         
         g, nb_r = AddingCreators(work["compositeur_target_id"], g, nb_r,
-                                      rand_nb, url_prod, concepts_urls, eut_auteurs)
+                                      rand_nb, url_prod, concepts_urls, eut_auteurs,
+                                      "8bed3a6e-fc91-4819-be6b-6dcc19ea6be3")
         
     # outputting the rdfs as a turtle file
     g.serialize(destination='output/oeuvres_lyriques.ttl', format='turtle')
     
     return nb_r
+
