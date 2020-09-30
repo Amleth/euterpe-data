@@ -9,9 +9,8 @@
 import os
 import pandas as pd
 import shutil
-from rdflib import Graph
 from rdflib.namespace import Namespace
-from rdflib import Graph, RDF, URIRef, Literal, RDFS, XSD
+from rdflib import Graph, RDF, URIRef, Literal, RDFS, XSD, DCTERMS
 from rdflib.namespace import SKOS
 import random
 import numpy as np
@@ -79,7 +78,8 @@ thes_list = ['spécialité',
              'Notation musicale',
              'Chant',
              'Support',
-             'Type oeuvre']
+             'Type oeuvre',
+             "Rôles"]
 
 # extracting our themes in a list
 taxo = pd.read_excel("input/taxonomies.xlsx", sheet_name=thes_list)
@@ -126,7 +126,7 @@ our turtle rdfs. We then build our urls and store them in the dataframe.
 )
 
 ## this number will be used throughout the file to generate new uuris
-nb_r = 10 **5
+nb_r = 10 ** 6
 
 ## looping throught the different excel sheets and generating a turtle file for each
 taxo, nb_r = fun.GenerateTtlThesauri(thes_list, taxo, nb_r)
@@ -230,9 +230,11 @@ for sheet_name in eut_sheets:
     # loading the sheet (thesaurus)
     sheet = eut_data[sheet_name]
     
-    # extracting the relevant names (they end by _id)
+    # extracting the relevant names (they end by _id or _tid)
     for name_col in sheet:
-        if "_id" in name_col or "_tid" in name_col and "_url" not in name_col:
+        if "_url" in name_col:
+            continue
+        if "_id" in name_col or "_tid" in name_col :
             cols_id.append(name_col)
             
     ## replacing the ids by uris
@@ -276,7 +278,7 @@ for sheet_name in eut_sheets:
                     # storing nids
                     unkn_nid.append(sheet[col].iloc[i])
     
-    # checking unknow ids
+    # checking unknow ids, removing doubles
     unkn_nid = list(dict.fromkeys(unkn_nid))
     
     # printing total of unknown keys
@@ -284,11 +286,85 @@ for sheet_name in eut_sheets:
     
     # saving the sheet in our dataframe
     eut_data[sheet_name] = sheet
+    
+### uploading image urls
+print(
+"""
+We swap the fid images for their corresponding urls
+"""
+)
+
+# Using readlines() 
+file1 = open('input/correspondances-fid-sha1-extension.txt', 'r') 
+Lines = file1.readlines()
+
+# creating a dictionary to store our fids and correponding urls
+fid_url = {}
+
+# looping through the fids
+for line in Lines:
+    
+    # extracting the fid and url
+    fid = line.split()[0]
+    url = "http://data-iremus.huma-num.fr/files/" + line.split()[1]
+    
+    # storing in the dict
+    fid_url[fid] = url
+    
+# closing the file
+file1.close()
+
+## replacing in our df
+# loading the sheet images
+sheet = eut_data["4_euterpe_images"]
+
+# index to locate the field
+i = 0
+
+# checking missing fids
+missing_fid = []
+
+# looping throught the fid column
+for fids in sheet["image_fid"]:
+    try:
+        # if field is empty
+        if fids is np.nan:
+            i += 1
+            
+        # for multiple fids
+        elif len(fids.split(sep=" 🍄 ")) > 1 :
+            # empty list to store urls
+            urls = []
+                
+            for img_id in fids.split(sep=" 🍄 "):
+                urls.append(fid_url[img_id])
+            
+            # saving the urls
+            sheet["image_fid"].iloc[i] = " , ".join(urls)
+            i += 1
+                
+        # for single image
+        else:
+            sheet["image_fid"].iloc[i] = fid_url[fids]
+            i += 1
+    except:
+        sheet["image_fid"].iloc[i] = None
+        
+        i += 1
+        
+        missing_fid.append(fids)
+        
+# printing total of unknown keys
+print("{} fids are unknown".format(len(missing_fid)))
+
+# uploading the df
+eut_data["4_euterpe_images"] = sheet
 
 ### saving the excel
 print(
 """
-We save our resulting dataframe in the new excel euterpe_data_modified.xlsx
+We save our resulting dataframe in the new excel euterpe_data_modified.xlsx,
+this takes a bit of time
 """
 )
 
@@ -317,6 +393,7 @@ g.bind("crm", crm)
 g.bind("rdf", RDF)
 g.bind("rdfs", RDFS)
 g.bind("iremus", iremus)
+g.bind("dcterms", DCTERMS)
 
 ## generating general concepts
 # creating a dictionary to store our general concepts
@@ -334,6 +411,7 @@ g.bind("crm", crm)
 g.bind("rdf", RDF)
 g.bind("rdfs", RDFS)
 g.bind("iremus", iremus)
+g.bind("dcterms", DCTERMS)
 
 # we load a number used for uuri generation
 rand_nb = random.Random()
@@ -347,16 +425,11 @@ for i in range(len(eut_data)):
     # loading one painting
     piece = eut_data.iloc[i]
     
-    # generating our random number for url generation
-    rd = random.Random()
-    rd.seed(nb_r)
-    
     # loading the url of the painting
     piece_url = URIRef(piece["uri"])
     
     # creating cidoc instance E22
     g.add((piece_url, RDF.type, crm.E22_ManMade_Object))
-    
     
     # adding the title object E35
     g.add((piece_url, crm.p102_has_title, URIRef(piece["titre_url"])))
@@ -452,8 +525,8 @@ for i in range(len(eut_data)):
         None
         
     # for multiple images
-    elif len(piece["image_fid"].split(sep=" 🍄 ")) > 1 :
-        for img_id in piece["image_fid"].split(sep=" 🍄 "):
+    elif len(piece["image_fid"].split(sep=" , ")) > 1  :
+        for img_id in piece["image_fid"].split(sep=" , "):
             rand_nb.seed(nb_r)
             url_img = fun.generate_rdf_url(rand_nb, str_url)
             nb_r += 1
@@ -476,6 +549,7 @@ for i in range(len(eut_data)):
     url_prod = fun.generate_rdf_url(rand_nb, str_url)
     g.add((url_prod, RDF.type, crm.E12_Production))
     g.add((url_prod, crm.p108_has_produced, piece_url))
+    g.add((piece_url, crm.p108i_was_produced_by, url_prod))
     nb_r += 1
     
     # adding the domain (type of work, e.g. painting)
@@ -485,7 +559,7 @@ for i in range(len(eut_data)):
         for domaine in piece["domaine_tid"].split(sep=" , "):
             g.add((url_prod, crm.p32_used_general_technique, URIRef(domaine)))
     else:
-        g.add((url_prod, crm.p2_has_type, URIRef(piece["domaine_tid"])))
+        g.add((url_prod, crm.p32_used_general_technique, URIRef(piece["domaine_tid"])))
     
     # generating date production
     if piece["date_oeuvre"] is np.nan:
@@ -533,7 +607,7 @@ for i in range(len(eut_data)):
     
     # inventeur
     g, nb_r = fun.AddingAttributedProducer(piece["inventeur_target_id"], g, nb_r,
-                                  rand_nb, concepts_urls, eut_auteurs, piece_url,
+                                  rand_nb, url_prod, concepts_urls, eut_auteurs, piece_url,
                                   "url_invent")
     
     # painting genre de
@@ -544,17 +618,17 @@ for i in range(len(eut_data)):
     # artist
     g, nb_r = fun.AddingProducers(piece["artiste_target_id"], g, nb_r,
                                   rand_nb, url_prod, concepts_urls, eut_auteurs,
-                                  "524db20d-156d-4c1e-b60f-a69e59b722ea")
+                                  "http://data-iremus.huma-num.fr/id/524db20d-156d-4c1e-b60f-a69e59b722ea")
     
     # éditeur
     g, nb_r = fun.AddingProducers(piece["_diteur_target_id"], g, nb_r,
                                   rand_nb, url_prod, concepts_urls, eut_auteurs,
-                                  "8a2902e4-434f-461d-882e-9c243ebef0b2")
+                                  "http://data-iremus.huma-num.fr/id/8a2902e4-434f-461d-882e-9c243ebef0b2")
     
     # graveur
     g, nb_r = fun.AddingProducers(piece["graveur_target_id"], g, nb_r,
                                   rand_nb, url_prod, concepts_urls, eut_auteurs,
-                                  "2b20adc9-54a8-4573-8347-2a994809e622")
+                                  "http://data-iremus.huma-num.fr/id/2b20adc9-54a8-4573-8347-2a994809e622")
     
     ## adding the tids (thesauris)
     # adding the musical instrument as an attribution
@@ -562,10 +636,6 @@ for i in range(len(eut_data)):
                                      "instrument_de_musique_tid", "url_instru")
     
     # adding represented oeuvre musicale as an attribution
-    g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
-                                     "_oeuvre_repr_sent_e_target_id", "url_oeuvre_mus")
-
-    # adding the represented musical works as an attribute
     g, nb_r = fun.AddingTidAttribute(g, piece, rand_nb, nb_r, piece_url, concepts_urls,
                                      "_oeuvre_repr_sent_e_target_id", "url_oeuvre_mus")
     
@@ -645,5 +715,6 @@ print("""
 # loading musical works
 eut_music_works = pd.read_excel("output/euterpe_data_modified.xlsx", sheet_name="5_oeuvres_lyriques")
 
-nb_r = fun.GenerateTurtleMusicWorks(crm, eut_music_works, concepts_urls, eut_auteurs)
+nb_r = fun.GenerateTurtleMusicWorks(crm, eut_music_works, concepts_urls, eut_auteurs,
+                                    nb_r)
 

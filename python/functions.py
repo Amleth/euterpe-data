@@ -15,7 +15,7 @@ from geopy.geocoders import Nominatim
 from openpyxl import load_workbook
 import random
 from rdflib import Graph, RDF, URIRef, Literal
-from rdflib.namespace import SKOS, DC, RDFS
+from rdflib.namespace import SKOS, DC, RDFS, DCTERMS
 import uuid
 from rdflib.namespace import Namespace
 import numpy as np
@@ -244,11 +244,12 @@ def GenerateTtlThesauri(thes_list, taxo, i):
         g.bind("dc", DC)
         iremus = Namespace('http://data-iremus.huma-num.fr/id/')
         g.bind("iremus", iremus)
+        g.bind("dcterms", DCTERMS)
         
         ## creating the triple for the concept scheme
         # adding triples
         g.add((scheme_uuri, RDF.type, SKOS.ConceptScheme))
-        g.add((scheme_uuri, DC.title, Literal(thes, lang="fr")))
+        g.add((scheme_uuri, DCTERMS.title, Literal(thes, lang="fr")))
         
         # list of urls
         urls = []
@@ -319,20 +320,10 @@ def GenerateTtlPlaces(taxo, nb_r, coordinates):
     sheet = taxo["Lieu de conservation"]
     
     # generating cidoc crm namespace
-    crm = Namespace('https//cidoc-crm.org/cirdoc-crm/')
+    crm = Namespace('http://cidoc-crm.org/cidoc-crm/')
     
     # we load a number used for uuri generation
     rand_nb = random.Random()
-    
-    # generating the uri for the scheme
-    rand_nb.seed(nb_r)
-    uid = uuid.UUID(int=rand_nb.getrandbits(128))
-    
-    # incrementing the index for the thesaurus uris
-    nb_r += 1
-    
-    # creating the UURI for the conceptscheme
-    scheme_uuri = URIRef("http://data-iremus.huma-num.fr/id/" + str(uid))
     
     # creating the graph object
     g = Graph()
@@ -345,11 +336,6 @@ def GenerateTtlPlaces(taxo, nb_r, coordinates):
     g.bind("rdfs", RDFS)
     iremus = Namespace('http://data-iremus.huma-num.fr/id/')
     g.bind("iremus", iremus)
-    
-    ## creating the triple for the concept scheme
-    # adding triples
-    g.add((scheme_uuri, RDF.type, SKOS.ConceptScheme))
-    g.add((scheme_uuri, DC.title, Literal("Lieu de conservation", lang="fr")))
     
     # list of urls
     urls = []
@@ -389,7 +375,7 @@ def GenerateTtlPlaces(taxo, nb_r, coordinates):
             rand_nb.seed(nb_r)
             url_coord = generate_rdf_url(rand_nb, str_url)
             nb_r += 1
-            g.add((url_city, crm.p172_contains, url_coord))
+            g.add((url_city, crm.p168_place_is_defined_by, url_coord))
             g.add((url_coord, RDF.type, crm.E94_Space_Primitive))
             g.add((url_coord, RDFS.label, Literal(coordinates[name_c])))
         except:
@@ -436,11 +422,6 @@ def GenerateTtlPlaces(taxo, nb_r, coordinates):
         # storing the uri in a list to add it to the conceptscheme
         urls.append(our_url)
         
-        # adding the triples
-        g.add((our_url, RDF.type, SKOS.Concept))
-        g.add((our_url, SKOS.prefLabel, Literal(label, lang="fr")))
-        g.add((our_url, SKOS.inScheme, scheme_uuri))
-        
         ## adding the CIDOC triples
         # creating the instance place
         g.add((our_url, RDF.type, crm.E53_place))
@@ -460,10 +441,6 @@ def GenerateTtlPlaces(taxo, nb_r, coordinates):
         except:
             g.add((our_url, crm.p1_is_identified_by,
                    museums_urls[label]))
-    
-    # adding the uuri to the conceptscheme
-    for ur in urls:
-        g.add((scheme_uuri, SKOS.hasTopConcept, ur))
     
     # outputting the rdfs as a turtle file
     g.serialize(destination='output/Lieu de conservation.ttl', format='turtle')
@@ -485,7 +462,7 @@ def GenerateTtlSpecialThesauri(taxo, thesau, crm_concept, uuid):
     sheet = taxo[thesau]
     
     # creating the UURI for the conceptscheme
-    scheme_uuri = URIRef("http://data-iremus.huma-num.fr/" + uuid)
+    scheme_uuri = URIRef("http://data-iremus.huma-num.fr/id/" + uuid)
     
     # creating the graph object
     g = Graph()
@@ -496,11 +473,12 @@ def GenerateTtlSpecialThesauri(taxo, thesau, crm_concept, uuid):
     g.bind("crm", crm)
     iremus = Namespace('http://data-iremus.huma-num.fr/id/')
     g.bind("iremus", iremus)
+    g.bind("dcterms", DCTERMS)
 
     ## creating the triple for the concept scheme
     # adding triples
     g.add((scheme_uuri, RDF.type, SKOS.ConceptScheme))
-    g.add((scheme_uuri, DC.title, Literal(thesau, lang="fr")))
+    g.add((scheme_uuri, DCTERMS.title, Literal(thesau, lang="fr")))
     
     # create a list to store urls
     urls = []
@@ -606,6 +584,7 @@ def AddingProducers(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, e
             nb_r += 1
             g.add((url_subprod, RDF.type, crm.E12_Production))
             g.add((url_subprod, crm.p9i_forms_part_of, url_prod))
+            g.add((url_prod, crm.p9_consists_of, url_subprod))
             g.add((url_subprod, crm.p14_carried_out_by, URIRef(artist)))
             g, nb_r = AddingProductionTid(artist, g, nb_r, rand_nb,
                                           "ecole__tid", url_subprod, "url_ecole",
@@ -631,6 +610,7 @@ def AddingProducers(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, e
         nb_r += 1
         g.add((url_subprod, RDF.type, crm.E12_Production))
         g.add((url_subprod, crm.p9i_forms_part_of, url_prod))
+        g.add((url_prod, crm.p9_consists_of, url_subprod))
         g.add((url_subprod, crm.p14_carried_out_by, URIRef(urls_producers)))
         g, nb_r = AddingProductionTid(urls_producers, g, nb_r, rand_nb,
                                       "ecole__tid", url_subprod, "url_ecole",
@@ -675,6 +655,7 @@ def AddingCreators(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, eu
             nb_r += 1
             g.add((url_subprod, RDF.type, crm.E65_Creation))
             g.add((url_subprod, crm.p9i_forms_part_of, url_prod))
+            g.add((url_prod, crm.p9_consists_of, url_subprod))
             g.add((url_subprod, crm.p94i_was_created_by, URIRef(artist)))
             g, nb_r = AddingProductionTid(artist, g, nb_r, rand_nb,
                                           "ecole__tid", url_subprod, "url_ecole",
@@ -697,8 +678,9 @@ def AddingCreators(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, eu
         rand_nb.seed(nb_r)
         url_subprod = generate_rdf_url(rand_nb, str_url)
         nb_r += 1
-        g.add((url_subprod, RDF.type, crm.E12_Production))
+        g.add((url_subprod, RDF.type, crm.E65_Creation))
         g.add((url_subprod, crm.p9i_forms_part_of, url_prod))
+        g.add((url_prod, crm.p9_consists_of, url_subprod))
         g.add((url_subprod, crm.p14_carried_out_by, URIRef(urls_producers)))
         g, nb_r = AddingProductionTid(urls_producers, g, nb_r, rand_nb,
                                       "ecole__tid", url_subprod, "url_ecole",
@@ -737,19 +719,29 @@ def AddingAttributedProducer(urls_producers, g, nb_r, rand_nb, url_prod,
         None
     elif len(urls_producers.split(sep=" , ")) > 1 :
         for artist in urls_producers.split(sep=" , "):
+            # url for the attribution instance
             rand_nb.seed(nb_r)
             url_attri = generate_rdf_url(rand_nb, str_url)
             nb_r += 1
             rand_nb.seed(nb_r)
+            
+            # url for the subproduction
             url_subprod = generate_rdf_url(rand_nb, str_url)
             nb_r += 1
+            
+            # generating the attribute
             g.add((url_attri, RDF.type, crm.E13_Attribute_Assignment))
             g.add((url_attri, crm.p140_assigned_attribute_to, url_subprod))
             g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
             g.add((url_attri, crm.p177_assigned_property_type, concepts_urls[concept] ))
             g.add((url_attri, crm.p141_assigned, URIRef(artist)))
+            
+            # generating the subproduction
             g.add((url_subprod, RDF.type, crm.E12_Production))
             g.add((url_subprod, crm.p9i_forms_part_of, url_prod))
+            g.add((url_prod, crm.p9_consists_of, url_subprod))
+            
+            # adding possible school and period
             g, nb_r = AddingProductionTid(artist, g, nb_r, rand_nb,
                                           "ecole__tid", url_subprod, "url_ecole",
                                           concepts_urls, eut_auteurs)
@@ -770,6 +762,7 @@ def AddingAttributedProducer(urls_producers, g, nb_r, rand_nb, url_prod,
         g.add((url_attri, crm.p141_assigned, URIRef(urls_producers)))
         g.add((url_subprod, RDF.type, crm.E12_Production))
         g.add((url_subprod, crm.p9i_forms_part_of, url_prod))
+        g.add((url_prod, crm.p9_consists_of, url_subprod))
         g, nb_r = AddingProductionTid(urls_producers, g, nb_r, rand_nb,
                                       "ecole__tid", url_subprod, "url_ecole",
                                       concepts_urls, eut_auteurs)
@@ -792,6 +785,16 @@ def GeneratingGeneralConcepts(g, crm):
     # string used to generate urls
     str_url = "http://data-iremus.huma-num.fr/id/"
     
+    # generating type annotation concept scheme
+    url_annot = URIRef(str_url + "1b0912eb-b300-4849-b15a-2353ef7c6ca5")
+    g.add((url_annot, RDF.type, SKOS.ConceptScheme))
+    g.add((url_annot, DCTERMS.title, Literal("Annotation scientifique", lang="fr")))
+    
+    # generating dimension concept scheme
+    url_dim = URIRef(str_url + "45fcbbe4-da3b-432a-a54e-0cfbc765bdda")
+    g.add((url_dim, RDF.type, SKOS.ConceptScheme))
+    g.add((url_dim, DCTERMS.title, Literal("Dimension", lang="fr")))
+    
     # generating height triplets
     url_height = URIRef(str_url + "fcdb4c32-7f65-466d-9cfe-251fe0b09675")
     g.add((url_height, RDF.type, crm.E55_Type))
@@ -799,6 +802,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_height, SKOS.prefLabel, Literal("height")))
     g.add((url_height, SKOS.exactMatch, URIRef("http://collection.britishart.yale.edu/id/object/142/height")))
     concepts_urls["height"] = url_height
+    g.add((url_dim, SKOS.hasTopConcept, url_height))
     
     # generating width triplets
     url_width = URIRef(str_url + "a7134177-6228-4716-8f90-b4e1d8514e63")
@@ -807,6 +811,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_width, SKOS.prefLabel, Literal("width")))
     g.add((url_width, SKOS.exactMatch, URIRef("http://collection.britishart.yale.edu/id/object/142/width")))
     concepts_urls["width"] = url_width
+    g.add((url_dim, SKOS.hasTopConcept, url_width))
     
     # generating depth triplets
     url_width = URIRef(str_url + "60930303-fa6f-4fb8-9775-3d42b24603c8")
@@ -814,13 +819,15 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_width, RDF.type, SKOS.Concept))
     g.add((url_width, SKOS.prefLabel, Literal("depth")))
     concepts_urls["depth"] = url_width
+    g.add((url_dim, SKOS.hasTopConcept, url_width))
     
-    # generating depth triplets
+    # generating diameter triplets
     url_width = URIRef(str_url + "9aa1e800-4435-4f2e-9255-5a781945e2ef")
     g.add((url_width, RDF.type, crm.E55_Type))
     g.add((url_width, RDF.type, SKOS.Concept))
     g.add((url_width, SKOS.prefLabel, Literal("diameter")))
     concepts_urls["diameter"] = url_width
+    g.add((url_dim, SKOS.hasTopConcept, url_width))
     
     # generating centimeters triplets
     url_cm = URIRef(str_url + "2f367772-afde-40ee-83bf-0690af8df959")
@@ -839,13 +846,15 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_eut, RDF.type, crm.E39_Actor))
     g.add((url_eut, SKOS.prefLabel, Literal("Référence bibliographique")))
     concepts_urls["url_bibli"] = url_eut
+    g.add((url_annot, SKOS.hasTopConcept, url_eut))
     
     # generating commentaire sur l'auteur
     url_com_period = URIRef(str_url + "50560569-d056-4242-bbfb-2ad78b8aa2be")
     g.add((url_com_period, RDF.type, crm.E55_Type))
     g.add((url_com_period, RDF.type, SKOS.Concept))
-    g.add((url_com_period, SKOS.prefLabel, Literal("Attribution d'une période de production")))
+    g.add((url_com_period, SKOS.prefLabel, Literal("Commentaire sur l'auteur")))
     concepts_urls["url_com_aut"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating commentaire sur l'école
     url_com_ecole = URIRef(str_url + "02448e22-a17b-4428-af07-29efa8cd0b7d")
@@ -853,6 +862,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_ecole, RDF.type, SKOS.Concept))
     g.add((url_com_ecole, SKOS.prefLabel, Literal("Attribution d'une école")))
     concepts_urls["url_ecole"] = url_com_ecole
+    g.add((url_annot, SKOS.hasTopConcept, url_com_ecole))
     
     # generating commentaire sur la période
     url_com_ecole = URIRef(str_url + "1594d39b-ec41-46aa-ae95-21a6de8b43c3")
@@ -860,6 +870,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_ecole, RDF.type, SKOS.Concept))
     g.add((url_com_ecole, SKOS.prefLabel, Literal("Attribution d'une période")))
     concepts_urls["url_period"] = url_com_ecole
+    g.add((url_annot, SKOS.hasTopConcept, url_com_ecole))
     
     # generating identification d'un instrument
     url_com_ecole = URIRef(str_url + "52d168d7-588d-470b-8571-7d7105a419b0")
@@ -867,6 +878,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_ecole, RDF.type, SKOS.Concept))
     g.add((url_com_ecole, SKOS.prefLabel, Literal("Identification d'un instrument")))
     concepts_urls["url_instru"] = url_com_ecole
+    g.add((url_annot, SKOS.hasTopConcept, url_com_ecole))
     
     # generating identification d'une inscription
     url_com_ecole = URIRef(str_url + "0cae9d75-7d62-4a07-9649-8fb80fd58895")
@@ -874,6 +886,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_ecole, RDF.type, SKOS.Concept))
     g.add((url_com_ecole, SKOS.prefLabel, Literal("Identification d'une inscription")))
     concepts_urls["url_inscri"] = url_com_ecole
+    g.add((url_annot, SKOS.hasTopConcept, url_com_ecole))
     
     # generating indication sur la technique
     url_com_ecole = URIRef(str_url + "13fd08a2-6544-4837-b7e9-60689335557e")
@@ -881,6 +894,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_ecole, RDF.type, SKOS.Concept))
     g.add((url_com_ecole, SKOS.prefLabel, Literal("Indication sur la technique")))
     concepts_urls["url_ind_tech"] = url_com_ecole
+    g.add((url_annot, SKOS.hasTopConcept, url_com_ecole))
     
     # generating indication sur le theme
     url_com_ecole = URIRef(str_url + "91363850-ed4d-4648-8a6a-6970ccb42c3c")
@@ -888,6 +902,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_ecole, RDF.type, SKOS.Concept))
     g.add((url_com_ecole, SKOS.prefLabel, Literal("Indication sur la thématique iconographique")))
     concepts_urls["url_theme"] = url_com_ecole
+    g.add((url_annot, SKOS.hasTopConcept, url_com_ecole))
     
     # generating commentaire sur l'oeuvre
     url_com_period = URIRef(str_url + "43a24974-036b-4f3e-9427-a77e19382a61")
@@ -895,6 +910,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Commentaire sur l'oeuvre")))
     concepts_urls["url_com_oeuvre"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating commentaire sur l'instrument
     url_com_period = URIRef(str_url + "8133a385-23c0-4f12-be08-848acd254013")
@@ -902,6 +918,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Commentaire sur l'instrument")))
     concepts_urls["url_com_instru"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating identification type acteurs chantants
     url_com_period = URIRef(str_url + "15810704-95a0-4e46-9fa2-583febc6f589")
@@ -909,6 +926,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Type d'acteurs chantant")))
     concepts_urls["url_chant"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating commentaire oeuvre en rapport
     url_com_period = URIRef(str_url + "1eefcc32-fc65-4d6e-be1d-37d887f3be76")
@@ -916,6 +934,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Oeuvre en rapport")))
     concepts_urls["url_oeuvre_rapport"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating commentaire sur musique
     url_com_period = URIRef(str_url + "7db6da68-07b5-4552-b367-5807bdee2289")
@@ -923,6 +942,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Commentaire sur la musique")))
     concepts_urls["url_com_mus"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating commentaire source littéraire
     url_com_period = URIRef(str_url + "46aebde5-b8be-4913-a520-5bc347d6be42")
@@ -930,13 +950,15 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Source littéraire")))
     concepts_urls["url_source_litt"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating commentaire source littéraire
     url_com_period = URIRef(str_url + "7d0bcdff-7edf-4745-a6d9-dc9b58e6befa")
     g.add((url_com_period, RDF.type, crm.E55_Type))
     g.add((url_com_period, RDF.type, SKOS.Concept))
-    g.add((url_com_period, SKOS.prefLabel, Literal("Attribution d'un inventeur")))
+    g.add((url_com_period, SKOS.prefLabel, Literal("Auteur du modèle de la gravure")))
     concepts_urls["url_invent"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating identification notation musicale
     url_com_period = URIRef(str_url + "8f8396c7-f6d7-4dd0-b2b2-6af39cd58741")
@@ -944,6 +966,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Identification d'une notation musicale")))
     concepts_urls["url_not_music"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating musical work visible in the painting
     url_com_period = URIRef(str_url + "d192e230-7561-4a97-8b33-d575ce31aee7")
@@ -951,6 +974,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Oeuvre musicale représentée")))
     concepts_urls["url_oeuvre_mus"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating attribution of painting school
     url_com_period = URIRef(str_url + "5a9cf85c-1a14-43af-8bdd-7009dfd38b57")
@@ -958,6 +982,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Attribution d'une école d'un peintre")))
     concepts_urls["url_paint_school"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating attribution 
     url_com_period = URIRef(str_url + "78bfcf8f-02d0-4aa3-9cc4-dd3997ca7ded")
@@ -965,6 +990,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Attribution à un autheur")))
     concepts_urls["url_attri"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating former attribution
     url_com_period = URIRef(str_url + "0ca8717b-3fe0-401e-b7de-57e8fb9ade8e")
@@ -972,6 +998,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Ancienne attribution")))
     concepts_urls["url_former_attribution"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating inspired from a painter
     url_com_period = URIRef(str_url + "ac7082de-739e-4141-b4c7-ae697b5f57d2")
@@ -979,6 +1006,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Inspiré de l'oeuvre d'un autre auteur")))
     concepts_urls["url_dapres"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating attribution to an atelier of a painter
     url_com_period = URIRef(str_url + "4f927026-0e56-412c-a896-db4fef29fe85")
@@ -986,6 +1014,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("De l'atelier d'un peintre")))
     concepts_urls["url_atelier"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating copy from a painter's work
     url_com_period = URIRef(str_url + "479c10c3-7e10-4a2b-b82b-b2440a508e6b")
@@ -993,6 +1022,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Copie d'après")))
     concepts_urls["url_copy"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating à la manière de
     url_com_period = URIRef(str_url + "3bcedda1-f669-4bf2-8fd0-e1cc40d517c7")
@@ -1000,6 +1030,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("À la manière de")))
     concepts_urls["url_manière"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating genre de
     url_com_period = URIRef(str_url + "d8b0f141-1865-4740-be95-0b78e8e1a0c6")
@@ -1007,6 +1038,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Genre de")))
     concepts_urls["url_genre"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     # generating roles
     url_com_period = URIRef(str_url + "22cd61b5-f1d2-4fd2-862e-0f1cb60a2e21")
@@ -1014,6 +1046,7 @@ def GeneratingGeneralConcepts(g, crm):
     g.add((url_com_period, RDF.type, SKOS.Concept))
     g.add((url_com_period, SKOS.prefLabel, Literal("Rôle dans la production")))
     concepts_urls["url_role"] = url_com_period
+    g.add((url_annot, SKOS.hasTopConcept, url_com_period))
     
     return concepts_urls, g
 
@@ -1222,10 +1255,10 @@ def GenerateTurtleMusicWorks(crm, eut_music_works, concepts_urls, eut_auteurs, n
             g.add((uri_work, crm.p2_has_type, URIRef(work["type_oeuvre_tid"])))
         
         # adding the title object E35
-        g.add((uri_work, crm.p102_has_title, URIRef(work["titre_de_l_oeuvre_url"])))
-        g.add((URIRef(work["titre_de_l_oeuvre_url"]), RDF.type, crm.E35_Title))
-        g.add((URIRef(work["titre_de_l_oeuvre_url"]), RDFS.label,
-               Literal(work["titre_de_l_oeuvre"])))
+        g.add((uri_work, crm.p102_has_title, URIRef(work["titre_url"])))
+        g.add((URIRef(work["titre_url"]), RDF.type, crm.E35_Title))
+        g.add((URIRef(work["titre_url"]), RDFS.label,
+               Literal(work["titre"])))
         
         ## adding commentaire as an attribute
         if work["commentaire"] is np.nan:
