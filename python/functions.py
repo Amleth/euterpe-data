@@ -320,7 +320,7 @@ def GenerateTtlPlaces(taxo, nb_r, coordinates):
     sheet = taxo["Lieu de conservation"]
     
     # generating cidoc crm namespace
-    crm = Namespace('http://cidoc-crm.org/cidoc-crm/')
+    crm = Namespace('http://www.cidoc-crm.org/cidoc-crm/')
     
     # we load a number used for uuri generation
     rand_nb = random.Random()
@@ -496,9 +496,6 @@ def GenerateTtlSpecialThesauri(taxo, thesau, crm_concept, uuid):
         g.add((our_url, RDF.type, crm_concept))
         g.add((our_url, SKOS.prefLabel, Literal(label, lang="fr")))
         g.add((our_url, SKOS.inScheme, scheme_uuri))
-        
-        # vizualizing the result
-        #print(g.serialize(format="turtle").decode("utf-8"))
     
     # adding the urls as top concepts of the concept scheme
     for ur in urls:
@@ -507,8 +504,6 @@ def GenerateTtlSpecialThesauri(taxo, thesau, crm_concept, uuid):
     # outputting the rdfs as a turtle file
     g.serialize(destination='output/'+thesau+'.ttl', format='turtle')
     
-    
-        
     return None
 
 
@@ -672,7 +667,7 @@ def AddingCreators(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, eu
             g.add((url_attri, crm.p140_assigned_attribute_to, url_subprod))
             g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
             g.add((url_attri, crm.p177_assigned_property_type, concepts_urls["url_role"] ))
-            g.add((url_attri, crm.p141_assigned, URIRef(url_role)))
+            g.add((url_attri, crm.p141_assigned, URIRef(str_url+url_role)))
         
     else:
         rand_nb.seed(nb_r)
@@ -697,7 +692,7 @@ def AddingCreators(urls_producers, g, nb_r, rand_nb, url_prod, concepts_urls, eu
         g.add((url_attri, crm.p140_assigned_attribute_to, url_subprod))
         g.add((url_attri, crm.p14_carried_out_by, concepts_urls["euterpe"] ))
         g.add((url_attri, crm.p177_assigned_property_type, concepts_urls["url_role"] ))
-        g.add((url_attri, crm.p141_assigned, URIRef(url_role)))
+        g.add((url_attri, crm.p141_assigned, URIRef(str_url+url_role)))
     
     return g, nb_r
 

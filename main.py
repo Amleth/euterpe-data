@@ -337,7 +337,10 @@ for fids in sheet["image_fid"]:
             urls = []
                 
             for img_id in fids.split(sep=" 🍄 "):
-                urls.append(fid_url[img_id])
+                if img_id in fid_url:
+                    urls.append(fid_url[img_id])
+                else:
+                    missing_fid.append(img_id)
             
             # saving the urls
             sheet["image_fid"].iloc[i] = " , ".join(urls)
